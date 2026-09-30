@@ -13,7 +13,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const t = useCallback<I18n['t']>((key, params) => translate(lang, key, params), [lang])
   const value = useMemo<I18n>(() => {
-    const fmt: I18n['fmt'] = (date, opts) => new Intl.DateTimeFormat(lang, opts).format(date)
+    const fmt: I18n['fmt'] = (date, opts) => new Intl.DateTimeFormat(lang === 'en' ? 'en-GB' : lang, opts).format(date)
     return {
       lang,
       dir,

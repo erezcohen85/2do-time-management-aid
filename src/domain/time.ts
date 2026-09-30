@@ -38,3 +38,12 @@ export function todayStr(now: Date = new Date()): DateStr {
 export function minutesOfDay(now: Date): number {
   return now.getHours() * 60 + now.getMinutes()
 }
+
+/** 285 -> "4h45", 45 -> "45m", 120 -> "2h". */
+export function formatMinutes(min: number): string {
+  const m = Math.max(0, Math.round(min))
+  const h = Math.floor(m / 60)
+  const r = m % 60
+  if (h === 0) return `${r}m`
+  return r === 0 ? `${h}h` : `${h}h${String(r).padStart(2, '0')}`
+}
