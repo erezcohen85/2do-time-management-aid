@@ -11,6 +11,7 @@ import { actions, newId } from '@/data/actions'
 import { useDb } from '@/data/hooks'
 import { orderDays } from '@/domain/week'
 import { useI18n, type MessageKey } from '@/i18n'
+import { ensureNotificationPermission } from '@/timer/alerts'
 import type { Screen, Settings } from '@/types'
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -163,7 +164,7 @@ export function SettingsScreen() {
               <TimeField id="ritual-time" value={s.ritual.time} onChange={(time) => up({ ritual: { time } })} />
             </Field>
             <Field label={t('settings.ritual.reminder')} htmlFor="ritual-reminder">
-              <Switch id="ritual-reminder" checked={s.ritual.reminder} onCheckedChange={(reminder) => up({ ritual: { reminder } })} />
+              <Switch id="ritual-reminder" checked={s.ritual.reminder} onCheckedChange={(reminder) => { up({ ritual: { reminder } }); if (reminder) void ensureNotificationPermission() }} />
             </Field>
           </>
         )}

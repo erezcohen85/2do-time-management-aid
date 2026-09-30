@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { AlertTriangle, CalendarCheck, Play } from 'lucide-react'
 import { toast } from 'sonner'
 import { CarryOverPool } from '@/components/carryover-pool'
+import { useReviewBlock } from '@/components/use-review-block'
 import { Timeline } from '@/components/timeline'
 import { TimerPanel } from '@/components/timer-panel'
 import { Badge } from '@/components/ui/badge'
@@ -25,6 +26,7 @@ export function TodayScreen() {
   const now = useNow(15000)
   const nowDate = new Date(now)
   const date = todayStr(nowDate)
+  useReviewBlock(date)
   const plan = useDb((db) => db.plans[date])
   const items = useDb((db) => db.items)
   const settings = useDb((db) => db.settings)

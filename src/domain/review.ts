@@ -75,3 +75,8 @@ export function activeProjectsForReview(projects: Project[], items: Item[]): Pro
     .filter((p) => !p.archived && items.some((i) => i.projectId === p.id && !i.done))
     .sort((a, b) => a.order - b.order)
 }
+
+/** The date of the weekly review inside the week that starts on `weekStartDate`. */
+export function reviewDateOfWeek(weekStartDate: DateStr, settings: Settings): DateStr {
+  return addDays(weekStartDate, (settings.review.weekday - weekdayOf(weekStartDate) + 7) % 7)
+}

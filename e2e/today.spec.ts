@@ -5,7 +5,9 @@ const pad = (n: number) => String(n).padStart(2, '0')
 const d = new Date()
 const TODAY = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 
+// keep the review day away from today so no review block is auto-inserted
 const db = {
+  settings: { review: { weekday: (d.getDay() + 3) % 7 } },
   items: [
     item({ id: 'a', title: 'Alpha', grade: 'A', gradeRank: 1 }),
     item({ id: 'b', title: 'Bravo', grade: 'A', gradeRank: 2 }),

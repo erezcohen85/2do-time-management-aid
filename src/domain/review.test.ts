@@ -1,6 +1,6 @@
 import type { DayPlan, Item, TimerSession } from '@/types'
 import { DEFAULT_SETTINGS } from '@/data/defaults'
-import { activeProjectsForReview, insertReviewBlock, isReviewDay, scorecard } from './review'
+import { activeProjectsForReview, insertReviewBlock, isReviewDay, reviewDateOfWeek, scorecard } from './review'
 
 const S = DEFAULT_SETTINGS
 const plan = (date: string, blocks: DayPlan['blocks'] = []): DayPlan => ({ date, blocks, locked: false, pushed: false })
@@ -76,5 +76,14 @@ describe('activeProjectsForReview', () => {
     }) as Item
     const r = activeProjectsForReview(projects, [it('1', 'p1'), it('2', 'p2', true), it('3', 'p3')])
     expect(r.map((p) => p.id)).toEqual(['p1'])
+  })
+})
+
+describe('reviewDateOfWeek', () => {
+  it('finds the review day inside a week for any week start', () => {
+    expect(reviewDateOfWeek('2026-09-27', S)).toBe('2026-10-01') // Sun-start -> Thursday
+    expect(reviewDateOfWeek('2026-09-28', S)).toBe('2026-10-01') // Mon-start
+    expect(reviewDateOfWeek('2026-09-26', S)).toBe('2026-10-01') // Sat-start
+    expect(reviewDateOfWeek('2026-10-01', S)).toBe('2026-10-01') // week starting on the review day
   })
 })

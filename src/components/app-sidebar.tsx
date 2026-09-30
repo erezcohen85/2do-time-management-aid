@@ -5,7 +5,9 @@ import {
   SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem, SidebarRail,
 } from '@/components/ui/sidebar'
 import { useDb } from '@/data/hooks'
+import { useRitual } from '@/components/use-ritual'
 import { score } from '@/domain/plan'
+import { reviewIsDue } from '@/domain/ritual'
 import { todayStr } from '@/domain/time'
 import { useI18n, type MessageKey } from '@/i18n'
 
@@ -21,6 +23,10 @@ export function AppSidebar() {
   const { pathname } = useLocation()
   const plans = useDb((db) => db.plans)
   const today = score(plans[todayStr()])
+  const reviews = useDb((db) => db.reviews)
+  const settings = useDb((db) => db.settings)
+  const ritual = useRitual()
+  const planDue = ritual.due || reviewIsDue(ritual.now, settings, reviews)
 
   return (
     <Sidebar collapsible="icon" side={dir === 'rtl' ? 'right' : 'left'}>
@@ -41,6 +47,11 @@ export function AppSidebar() {
                       <span>{t(key)}</span>
                     </NavLink>
                   </SidebarMenuButton>
+                  {id === 'plan' && planDue && (
+                    <SidebarMenuBadge data-testid="plan-dot" aria-label={t('ritual.dot')}>
+                      <span className="size-2 rounded-full bg-destructive" />
+                    </SidebarMenuBadge>
+                  )}
                   {id === 'today' && today.total > 0 && (
                     <SidebarMenuBadge data-testid="today-badge">
                       {today.done}/{today.total}

@@ -5,7 +5,7 @@ import type {
 import { isPlannable, nextGradeRank, reorderInGrade } from '@/domain/items'
 import { leftovers } from '@/domain/plan'
 import { canAddBlock } from '@/domain/plan'
-import { insertReviewBlock } from '@/domain/review'
+import { insertReviewBlock, reviewDateOfWeek } from '@/domain/review'
 import { weekStartOf } from '@/domain/week'
 
 /**
@@ -274,6 +274,19 @@ export function updateReview(db: Db, weekStart: DateStr, patch: Partial<Omit<Wee
 export function setProjectNote(db: Db, weekStart: DateStr, projectId: string, note: string): Db {
   const cur = db.reviews[weekStart] ?? { weekStart, projectNotes: {} }
   return updateReview(db, weekStart, { projectNotes: { ...cur.projectNotes, [projectId]: note } })
+}
+
+/** Mark the week's review complete (or not). Also ticks the review block on the review day. */
+export function setReviewComplete(db: Db, weekStart: DateStr, complete: boolean, now: string = new Date().toISOString()): Db {
+  const next = updateReview(db, weekStart, { completedAt: complete ? now : undefined })
+  const date = reviewDateOfWeek(weekStart, db.settings)
+  const plan = next.plans[date]
+  const block = plan?.blocks.find((b) => b.kind === 'review')
+  if (!plan || !block || block.done === complete) return next
+  return {
+    ...next,
+    plans: { ...next.plans, [date]: { ...plan, blocks: plan.blocks.map((b) => (b.id === block.id ? { ...b, done: complete } : b)) } },
+  }
 }
 
 export const addSession = (db: Db, s: TimerSession): Db => ({ ...db, sessions: [...db.sessions, s] })

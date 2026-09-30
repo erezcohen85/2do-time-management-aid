@@ -160,6 +160,20 @@ describe('weekly review', () => {
     db = m.setBlockDone(db, '2026-10-01', 'rv', true, 'NOW')
     expect(db.reviews['2026-09-27'].completedAt).toBe('NOW')
   })
+  it('completing the review ticks the review block, and un-completing reopens it', () => {
+    let db = m.ensureReviewBlock(emptyDb(), '2026-10-01', 'rv')
+    db = m.setReviewComplete(db, '2026-09-27', true, 'NOW')
+    expect(db.reviews['2026-09-27'].completedAt).toBe('NOW')
+    expect(db.plans['2026-10-01'].blocks[0].done).toBe(true)
+    db = m.setReviewComplete(db, '2026-09-27', false)
+    expect(db.reviews['2026-09-27'].completedAt).toBeUndefined()
+    expect(db.plans['2026-10-01'].blocks[0].done).toBe(false)
+  })
+  it('completing without a block still records completion', () => {
+    const db = m.setReviewComplete(emptyDb(), '2026-09-27', true, 'NOW')
+    expect(db.reviews['2026-09-27'].completedAt).toBe('NOW')
+    expect(db.plans).toEqual({})
+  })
   it('stores reflection and project notes per week', () => {
     let db = m.updateReview(emptyDb(), '2026-09-27', { wentWell: 'x' })
     db = m.setProjectNote(db, '2026-09-27', 'p1', 'note')
