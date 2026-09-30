@@ -70,6 +70,14 @@ describe('items', () => {
   })
 })
 
+describe('moveItemToProject', () => {
+  it('moves a task together with its subtasks', () => {
+    const db = m.moveItemToProject(withItems(mk('t'), mk('s', { parentId: 't' }), mk('o')), 't', 'p1')
+    expect(db.items.map((i) => i.projectId)).toEqual(['p1', 'p1', null])
+    expect(m.moveItemToProject(db, 't', null).items[1].projectId).toBeNull()
+  })
+})
+
 describe('plan blocks', () => {
   it('adds with default estimate, stores it on the item, ranks sequentially', () => {
     let db = withItems(mk('a'), mk('b', { estimateMin: 90 }))

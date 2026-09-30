@@ -1,5 +1,10 @@
 import { Outlet } from 'react-router-dom'
 import { AppSidebar } from '@/components/app-sidebar'
+import { GlobalKeys } from '@/components/global-keys'
+import { ItemDetail } from '@/components/item-detail'
+import { ProjectDetail } from '@/components/project-detail'
+import { QuickAdd } from '@/components/quick-add'
+import { SearchDialog } from '@/components/search-dialog'
 import { HeaderTimer } from '@/components/header-timer'
 import { Separator } from '@/components/ui/separator'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
@@ -24,6 +29,11 @@ export function AppShell() {
           </main>
         </SidebarInset>
       </SidebarProvider>
+      <ItemDetail />
+      <ProjectDetail />
+      <QuickAdd />
+      <SearchDialog />
+      <GlobalKeys />
       <Toaster />
     </TooltipProvider>
   )

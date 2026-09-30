@@ -81,6 +81,14 @@ export function updateItem(db: Db, id: string, patch: ItemPatch): Db {
   return { ...db, items: db.items.map((i) => (i.id === id ? { ...i, ...patch } : i)) }
 }
 
+/** Move a task (and its subtasks) to a project, or to no project with `null`. */
+export function moveItemToProject(db: Db, id: string, projectId: string | null): Db {
+  return {
+    ...db,
+    items: db.items.map((i) => (i.id === id || i.parentId === id ? { ...i, projectId } : i)),
+  }
+}
+
 /** Deletes the item and its subtasks; clears waiting-on references and plan blocks. */
 export function deleteItem(db: Db, id: string): Db {
   const gone = new Set([id, ...db.items.filter((i) => i.parentId === id).map((i) => i.id)])

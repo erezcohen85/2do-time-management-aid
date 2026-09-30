@@ -6,6 +6,7 @@ import { useI18n } from '@/i18n'
 import { I18nProvider } from '@/i18n/provider'
 import { Placeholder } from '@/screens/placeholder'
 import { SettingsScreen } from '@/screens/settings'
+import { TaskManagerScreen } from '@/screens/task-manager'
 import { ThemeProvider } from '@/theme/theme-provider'
 
 function Home() {
@@ -20,7 +21,7 @@ function Routed() {
       <Routes>
         <Route element={<AppShell />}>
           <Route path="/" element={<Home />} />
-          <Route path="/tasks" element={<Placeholder titleKey="nav.tasks" />} />
+          <Route path="/tasks" element={<TaskManagerScreen />} />
           <Route path="/plan/:date?" element={<Placeholder titleKey="nav.plan" />} />
           <Route path="/today" element={<Placeholder titleKey="nav.today" />} />
           <Route path="/settings" element={<SettingsScreen />} />

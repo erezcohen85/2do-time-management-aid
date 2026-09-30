@@ -92,3 +92,15 @@ export function smartProgress(smart: Smart | undefined): number | null {
   if (!smart || smart.target === undefined || smart.target <= 0) return null
   return Math.max(0, Math.min(1, (smart.current ?? 0) / smart.target))
 }
+
+/** True when making `blockerId` the blocker of `itemId` would create a waiting-on cycle. */
+export function wouldCycle(items: Item[], itemId: string, blockerId: string): boolean {
+  const seen = new Set<string>()
+  let cur: string | undefined = blockerId
+  while (cur && !seen.has(cur)) {
+    if (cur === itemId) return true
+    seen.add(cur)
+    cur = items.find((i) => i.id === cur)?.waitingOnId
+  }
+  return false
+}

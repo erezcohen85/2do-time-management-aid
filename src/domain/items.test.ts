@@ -1,7 +1,7 @@
 import type { Item } from '@/types'
 import {
   childrenOf, isBlocked, isLeaf, isPlannable, nextGradeRank, rankLabel, rankedByGrade,
-  reorderInGrade, smartCount, smartProgress, ungraded,
+  reorderInGrade, smartCount, smartProgress, ungraded, wouldCycle,
 } from './items'
 
 let n = 0
@@ -93,5 +93,15 @@ describe('SMART', () => {
     expect(smartProgress({ metric: 'x' })).toBeNull()
     expect(smartProgress(undefined)).toBeNull()
     expect(smartProgress({ target: 10 })).toBe(0)
+  })
+})
+
+describe('wouldCycle', () => {
+  const a = mk({ id: 'ca' }), b = mk({ id: 'cb', waitingOnId: 'ca' }), c = mk({ id: 'cc', waitingOnId: 'cb' })
+  it('detects direct, indirect and self cycles', () => {
+    expect(wouldCycle([a, b, c], 'ca', 'cc')).toBe(true)
+    expect(wouldCycle([a, b, c], 'ca', 'cb')).toBe(true)
+    expect(wouldCycle([a, b, c], 'ca', 'ca')).toBe(true)
+    expect(wouldCycle([a, b, c], 'cc', 'ca')).toBe(false)
   })
 })
