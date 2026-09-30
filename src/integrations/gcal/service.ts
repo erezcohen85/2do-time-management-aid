@@ -28,6 +28,7 @@ export function createGcalService(deps: ServiceDeps) {
   const actions = bindActions(store)
   const storage = deps.storage ?? localStorage
   let lastFailed: (() => Promise<unknown>) | null = null
+  let initPromise: Promise<void> | null = null
 
   const linked = () => {
     try {
@@ -72,8 +73,13 @@ export function createGcalService(deps: ServiceDeps) {
   }
 
   const service = {
-    /** Decide the starting state on app load. Never opens a popup. */
-    async init() {
+    /** Decide the starting state on app load. Never opens a popup. Runs once (React StrictMode calls twice). */
+    init(): Promise<void> {
+      initPromise ??= service.doInit()
+      return initPromise
+    },
+
+    async doInit() {
       const client = getClient()
       if (!client) return status.set({ phase: 'unconfigured' })
       if (!linked()) return status.set({ phase: 'disconnected' })

@@ -16,6 +16,7 @@ import { schedule, type ScheduledBlock } from '@/domain/schedule'
 import { formatMinutes, minutesOfDay, parseDate, todayStr } from '@/domain/time'
 import { useI18n } from '@/i18n'
 import { useCalendarEvents } from '@/integrations/gcal/events-store'
+import { useGcalEvents } from '@/integrations/gcal/hooks'
 import { ensureNotificationPermission } from '@/timer/alerts'
 import { timerController, useNow } from '@/timer/hooks'
 import { timerPrefs } from '@/timer/prefs'
@@ -27,6 +28,7 @@ export function TodayScreen() {
   const nowDate = new Date(now)
   const date = todayStr(nowDate)
   useReviewBlock(date)
+  useGcalEvents([date])
   const plan = useDb((db) => db.plans[date])
   const items = useDb((db) => db.items)
   const settings = useDb((db) => db.settings)

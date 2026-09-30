@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom'
 import { AppSidebar } from '@/components/app-sidebar'
+import { GcalBanner } from '@/components/gcal-banner'
 import { GlobalKeys } from '@/components/global-keys'
 import { ItemDetail } from '@/components/item-detail'
 import { ProjectDetail } from '@/components/project-detail'
@@ -12,11 +13,13 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/s
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { useI18n } from '@/i18n'
+import { useGcalLifecycle } from '@/integrations/gcal/hooks'
 import { useTimerTicker } from '@/timer/hooks'
 
 export function AppShell() {
   const { t } = useI18n()
   useTimerTicker()
+  useGcalLifecycle()
   return (
     <TooltipProvider>
       <SidebarProvider>
@@ -27,6 +30,7 @@ export function AppShell() {
             <Separator orientation="vertical" className="h-4" />
             <HeaderTimer />
           </header>
+          <GcalBanner />
           <RitualBanner />
           <main className="flex-1 p-6">
             <Outlet />
