@@ -76,6 +76,8 @@ export interface Block {
   pinnedStart?: TimeStr
   done: boolean
   gcalEventId?: string
+  /** Signature (title, start, end) last pushed to Google Calendar. */
+  gcalSig?: string
 }
 
 export interface DayPlan {
@@ -83,6 +85,8 @@ export interface DayPlan {
   blocks: Block[]
   locked: boolean
   pushed: boolean
+  /** Calendar events of removed blocks, waiting to be deleted on the next sync. */
+  orphanedEventIds?: string[]
 }
 
 export type TimerMode = 'pomodoro' | 'countdown' | 'stopwatch' | 'preset'

@@ -141,6 +141,37 @@ describe('plan blocks', () => {
   })
 })
 
+describe('calendar sync bookkeeping', () => {
+  it('removing a pushed block orphans its event; clearOrphans forgets it', () => {
+    let db = withItems(mk('a'), mk('b'))
+    db = m.addItemBlock(db, D, 'a', { id: 'b1' })
+    db = m.addItemBlock(db, D, 'b', { id: 'b2' })
+    db = m.setBlockSync(db, D, 'b1', { gcalEventId: 'ev1', gcalSig: 's' })
+    db = m.removeBlock(db, D, 'b2')
+    expect(db.plans[D].orphanedEventIds).toBeUndefined()
+    db = m.removeBlock(db, D, 'b1')
+    expect(db.plans[D].orphanedEventIds).toEqual(['ev1'])
+    db = m.clearOrphans(db, D, ['ev1'])
+    expect(db.plans[D].orphanedEventIds).toBeUndefined()
+  })
+  it('deleting an item orphans the events of its blocks', () => {
+    let db = withItems(mk('a'))
+    db = m.addItemBlock(db, D, 'a', { id: 'b1' })
+    db = m.setBlockSync(db, D, 'b1', { gcalEventId: 'ev9', gcalSig: 's' })
+    db = m.deleteItem(db, 'a')
+    expect(db.plans[D].orphanedEventIds).toEqual(['ev9'])
+  })
+  it('sync bookkeeping works on locked days', () => {
+    let db = withItems(mk('a'))
+    db = m.addItemBlock(db, D, 'a', { id: 'b1' })
+    db = m.setLocked(db, D, true)
+    db = m.setBlockSync(db, D, 'b1', { gcalEventId: 'e', gcalSig: 's' })
+    expect(db.plans[D].blocks[0]).toMatchObject({ gcalEventId: 'e', gcalSig: 's' })
+    db = m.setPushed(db, D, true)
+    expect(db.plans[D].pushed).toBe(true)
+  })
+})
+
 describe('weekly review', () => {
   it('inserts the review block once per week, even if removed', () => {
     let db = withItems(mk('a'))

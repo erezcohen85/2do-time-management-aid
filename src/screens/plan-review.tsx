@@ -15,7 +15,8 @@ import { store } from '@/data/store'
 import { isPlannable } from '@/domain/items'
 import { canAddBlock, capStatus } from '@/domain/plan'
 import { isReviewDay } from '@/domain/review'
-import { defaultPlanDate } from '@/domain/week'
+import { defaultPlanDate, weekDates, weekStartOf } from '@/domain/week'
+import { useGcalEvents } from '@/integrations/gcal/hooks'
 import { useI18n } from '@/i18n'
 import type { DateStr } from '@/types'
 
@@ -36,6 +37,7 @@ export function PlanReviewScreen() {
       : defaultPlanDate(new Date(), store.getState().settings.ritual)
   const go = (d: DateStr) => navigate(`/plan/${d}`)
   useReviewBlock(date)
+  useGcalEvents(weekDates(weekStartOf(date, store.getState().settings.weekStart)))
   const reviewDay = useDb((d) => isReviewDay(date, d.settings))
   const [pending, setPending] = useState<{ itemId: string; index?: number } | null>(null)
   const [dragging, setDragging] = useState<string | null>(null)

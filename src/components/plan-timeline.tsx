@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { CalendarCheck, GripVertical, Lock, LockOpen, Pin, PinOff, Trash2, X } from 'lucide-react'
+import { CalendarCheck, CloudUpload, GripVertical, Lock, LockOpen, Pin, PinOff, Trash2, X } from 'lucide-react'
+import { toast } from 'sonner'
 import { CapacityFooter } from '@/components/capacity-footer'
 import { Timeline } from '@/components/timeline'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -17,7 +18,9 @@ import { capStatus } from '@/domain/plan'
 import { schedule, type ScheduledBlock } from '@/domain/schedule'
 import { formatMinutes, parseDate } from '@/domain/time'
 import { useI18n } from '@/i18n'
+import { gcal } from '@/integrations/gcal/client'
 import { useCalendarEvents } from '@/integrations/gcal/events-store'
+import { useGcalStatus } from '@/integrations/gcal/status'
 import { cn } from '@/lib/utils'
 import type { DateStr } from '@/types'
 
@@ -143,6 +146,36 @@ function BlockRow({ sb, date, locked, index }: { sb: ScheduledBlock; date: DateS
   )
 }
 
+function PushButton({ date }: { date: DateStr }) {
+  const { t } = useI18n()
+  const plan = useDb((db) => db.plans[date])
+  const mode = useDb((db) => db.settings.gcal.syncMode)
+  const status = useGcalStatus()
+  const can = status.phase === 'connected' && (!!plan?.blocks.length || !!plan?.orphanedEventIds?.length)
+  const label = status.syncing ? t('gcal.syncing') : plan?.pushed && mode === 'manual' ? t('gcal.syncNow') : t('gcal.push')
+  return (
+    <div className="flex items-center gap-2">
+      {plan?.pushed && (
+        <Badge variant="secondary" data-testid="pushed-badge">
+          {t('gcal.pushedBadge')}
+        </Badge>
+      )}
+      <Button
+        size="sm"
+        disabled={!can || status.syncing}
+        title={status.phase === 'connected' ? undefined : t('gcal.pushDisabled')}
+        data-testid="gcal-push"
+        onClick={async () => {
+          const r = await gcal().pushDay(date)
+          if (r) toast.success(t('gcal.pushed'))
+        }}
+      >
+        <CloudUpload /> {label}
+      </Button>
+    </div>
+  )
+}
+
 export function PlanTimeline({ date }: { date: DateStr }) {
   const { t, fmt } = useI18n()
   const plan = useDb((db) => db.plans[date])
@@ -198,6 +231,9 @@ export function PlanTimeline({ date }: { date: DateStr }) {
         </p>
       )}
       <CapacityFooter plan={plan} schedule={result} settings={settings} />
+      <div className="flex justify-end">
+        <PushButton date={date} />
+      </div>
     </div>
   )
 }

@@ -17,6 +17,10 @@ export const calendarEvents = {
     listeners.forEach((l) => l())
   },
   get: (date: DateStr): CalendarEvent[] => byDate[date] ?? EMPTY,
+  subscribe(l: () => void) {
+    listeners.add(l)
+    return () => listeners.delete(l)
+  },
 }
 
 export function useCalendarEvents(date: DateStr): CalendarEvent[] {

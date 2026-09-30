@@ -1,6 +1,7 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,6 +12,8 @@ import { actions, newId } from '@/data/actions'
 import { useDb } from '@/data/hooks'
 import { orderDays } from '@/domain/week'
 import { useI18n, type MessageKey } from '@/i18n'
+import { gcal } from '@/integrations/gcal/client'
+import { useGcalStatus } from '@/integrations/gcal/status'
 import { ensureNotificationPermission } from '@/timer/alerts'
 import type { Screen, Settings } from '@/types'
 
@@ -225,26 +228,7 @@ export function SettingsScreen() {
       </Section>
 
       <Section title={t('settings.section.gcal')}>
-        <Field label={t('settings.gcal.status')}>
-          <span className="text-sm text-muted-foreground" data-testid="gcal-status">{t('settings.gcal.notConnected')}</span>
-        </Field>
-        <Field label={t('settings.gcal.syncMode')} htmlFor="gcal-sync">
-          <Pick
-            id="gcal-sync"
-            value={s.gcal.syncMode}
-            options={[
-              { value: 'auto', label: t('settings.gcal.auto') },
-              { value: 'manual', label: t('settings.gcal.manual') },
-            ]}
-            onChange={(syncMode) => up({ gcal: { syncMode } })}
-          />
-        </Field>
-        <Field label={t('settings.gcal.target')}>
-          <span className="text-sm">{t('settings.gcal.targetDefault')}</span>
-        </Field>
-        <Field label={t('settings.gcal.read')}>
-          <span className="text-sm text-muted-foreground">{t('settings.gcal.readNone')}</span>
-        </Field>
+        <GcalSettings s={s} />
       </Section>
 
       <Section title={t('settings.section.timer')}>
@@ -348,6 +332,99 @@ function PomodoroFields({ s }: { s: Settings }) {
       </Field>
       <Field label={t('settings.timer.longEvery')} htmlFor="pom-every">
         <NumberField id="pom-every" value={p.longEvery} max={12} onChange={(longEvery) => up({ longEvery })} />
+      </Field>
+    </>
+  )
+}
+
+function GcalSettings({ s }: { s: Settings }) {
+  const { t } = useI18n()
+  const status = useGcalStatus()
+  const svc = gcal()
+  const connected = status.phase === 'connected'
+  const target = status.calendars.find((c) => c.id === s.gcal.targetCalendarId)
+  const readable = status.calendars.filter((c) => c.id !== s.gcal.targetCalendarId)
+
+  useEffect(() => {
+    if (status.phase === 'connected' && status.calendars.length === 0) void svc.loadCalendars()
+    // load once when we become connected
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status.phase])
+
+  const phaseText =
+    status.phase === 'connected'
+      ? t('gcal.connected')
+      : status.phase === 'connecting'
+        ? t('gcal.connecting')
+        : status.phase === 'reconnect'
+          ? t('gcal.needsReconnect')
+          : t('settings.gcal.notConnected')
+
+  return (
+    <>
+      {status.phase === 'unconfigured' && (
+        <p className="text-sm text-muted-foreground" data-testid="gcal-unconfigured">
+          {t('gcal.unconfigured')}
+        </p>
+      )}
+      <Field label={t('settings.gcal.status')}>
+        <span className="text-sm text-muted-foreground" data-testid="gcal-status">
+          {phaseText}
+        </span>
+        {(status.phase === 'disconnected' || status.phase === 'unconfigured') && (
+          <Button size="sm" disabled={status.phase === 'unconfigured'} onClick={() => void svc.connect()} data-testid="gcal-connect">
+            {t('gcal.connect')}
+          </Button>
+        )}
+        {status.phase === 'reconnect' && (
+          <Button size="sm" onClick={() => void svc.reconnect()}>
+            {t('gcal.reconnect')}
+          </Button>
+        )}
+        {(status.phase === 'connected' || status.phase === 'reconnect') && (
+          <Button size="sm" variant="outline" onClick={() => void svc.disconnect()} data-testid="gcal-disconnect">
+            {t('gcal.disconnect')}
+          </Button>
+        )}
+      </Field>
+      <Field label={t('settings.gcal.syncMode')} htmlFor="gcal-sync">
+        <Pick
+          id="gcal-sync"
+          value={s.gcal.syncMode}
+          options={[
+            { value: 'auto', label: t('settings.gcal.auto') },
+            { value: 'manual', label: t('settings.gcal.manual') },
+          ]}
+          onChange={(syncMode) => actions.updateSettings({ gcal: { syncMode } })}
+        />
+      </Field>
+      <Field label={t('settings.gcal.target')}>
+        <span className="text-sm">{target ? t('gcal.target.name', { name: target.summary }) : t('settings.gcal.targetDefault')}</span>
+      </Field>
+      <Field label={t('settings.gcal.read')}>
+        {!connected ? (
+          <span className="text-sm text-muted-foreground">{t('settings.gcal.readNone')}</span>
+        ) : readable.length === 0 ? (
+          <span className="text-sm text-muted-foreground">{t('gcal.calendars.loading')}</span>
+        ) : (
+          <div className="grid gap-2" data-testid="gcal-calendars">
+            {readable.map((c) => (
+              <label key={c.id} className="flex items-center gap-2 text-sm">
+                <Checkbox
+                  checked={s.gcal.readCalendarIds.includes(c.id)}
+                  onCheckedChange={(v) =>
+                    actions.updateSettings({
+                      gcal: {
+                        readCalendarIds: v === true ? [...s.gcal.readCalendarIds, c.id] : s.gcal.readCalendarIds.filter((x) => x !== c.id),
+                      },
+                    })
+                  }
+                />
+                {c.summary}
+              </label>
+            ))}
+          </div>
+        )}
       </Field>
     </>
   )

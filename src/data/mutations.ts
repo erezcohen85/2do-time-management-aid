@@ -94,7 +94,13 @@ export function deleteItem(db: Db, id: string): Db {
   const gone = new Set([id, ...db.items.filter((i) => i.parentId === id).map((i) => i.id)])
   const plans: Record<DateStr, DayPlan> = {}
   for (const [d, p] of Object.entries(db.plans)) {
-    plans[d] = { ...p, blocks: p.blocks.filter((b) => !(b.itemId && gone.has(b.itemId))) }
+    const removed = p.blocks.filter((b) => b.itemId && gone.has(b.itemId))
+    const orphaned = removed.map((b) => b.gcalEventId).filter((x): x is string => !!x)
+    plans[d] = {
+      ...p,
+      blocks: p.blocks.filter((b) => !(b.itemId && gone.has(b.itemId))),
+      orphanedEventIds: orphaned.length ? [...(p.orphanedEventIds ?? []), ...orphaned] : p.orphanedEventIds,
+    }
   }
   return {
     ...db,
@@ -209,9 +215,15 @@ export function ensureReviewBlock(db: Db, date: DateStr, id: string): Db {
 }
 
 export function removeBlock(db: Db, date: DateStr, blockId: string): Db {
-  return withPlan(db, date, (p) =>
-    p.blocks.some((b) => b.id === blockId) ? { ...p, blocks: renumber(p.blocks.filter((b) => b.id !== blockId)) } : p,
-  )
+  return withPlan(db, date, (p) => {
+    const gone = p.blocks.find((b) => b.id === blockId)
+    if (!gone) return p
+    return {
+      ...p,
+      blocks: renumber(p.blocks.filter((b) => b.id !== blockId)),
+      orphanedEventIds: gone.gcalEventId ? [...(p.orphanedEventIds ?? []), gone.gcalEventId] : p.orphanedEventIds,
+    }
+  })
 }
 
 /** Reorder: move block to 0-based `index` in rank order. */
@@ -240,10 +252,24 @@ export const pinBlock = (db: Db, date: DateStr, blockId: string, time: TimeStr |
 export const setBlockEstimate = (db: Db, date: DateStr, blockId: string, estimateMin: number): Db =>
   patchBlock(db, date, blockId, { estimateMin: Math.max(5, Math.round(estimateMin)) })
 
-export const setBlockGcalId = (db: Db, date: DateStr, blockId: string, gcalEventId: string | undefined): Db =>
-  withPlan(db, date, (p) => ({ ...p, blocks: p.blocks.map((b) => (b.id === blockId ? { ...b, gcalEventId } : b)) }), {
+/** Record what was pushed to Google Calendar for a block (works on locked days). */
+export const setBlockSync = (db: Db, date: DateStr, blockId: string, sync: { gcalEventId: string; gcalSig: string }): Db =>
+  withPlan(db, date, (p) => ({ ...p, blocks: p.blocks.map((b) => (b.id === blockId ? { ...b, ...sync } : b)) }), {
     allowLocked: true,
   })
+
+/** Forget orphaned event ids once they were deleted from the calendar. */
+export const clearOrphans = (db: Db, date: DateStr, ids: string[]): Db =>
+  withPlan(
+    db,
+    date,
+    (p) => {
+      if (!p.orphanedEventIds?.some((id) => ids.includes(id))) return p
+      const left = p.orphanedEventIds.filter((id) => !ids.includes(id))
+      return { ...p, orphanedEventIds: left.length ? left : undefined }
+    },
+    { allowLocked: true },
+  )
 
 /** Tick a block. Item blocks also tick the underlying item everywhere it is planned. */
 export function setBlockDone(db: Db, date: DateStr, blockId: string, done: boolean, now?: string): Db {
