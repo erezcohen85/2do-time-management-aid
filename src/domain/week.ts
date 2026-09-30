@@ -1,5 +1,5 @@
 import type { DateStr } from '@/types'
-import { addDays, parseDate, weekdayOf } from './time'
+import { addDays, formatDate, parseDate, weekdayOf } from './time'
 
 /** First date of the week containing `d`, for a week that starts on weekday `weekStart`. */
 export function weekStartOf(d: DateStr, weekStart: number): DateStr {
@@ -33,4 +33,19 @@ export function isoWeekNumber(weekStartDate: DateStr): number {
 /** Weekday indexes (0=Sun) sorted in display order for a week starting on `weekStart`. */
 export function orderDays(days: number[], weekStart: number): number[] {
   return [...new Set(days)].sort((a, b) => ((a - weekStart + 7) % 7) - ((b - weekStart + 7) % 7))
+}
+
+/**
+ * The day Plan & Review opens on. Evening ritual past its time, or a day that is
+ * already over for planning, lands on tomorrow; otherwise today.
+ */
+export function defaultPlanDate(
+  now: Date,
+  ritual: { mode: 'evening' | 'morning' | 'anytime'; time: string },
+): DateStr {
+  const today = formatDate(now)
+  if (ritual.mode !== 'evening') return today
+  const [h, m] = ritual.time.split(':').map(Number)
+  const past = now.getHours() * 60 + now.getMinutes() >= h * 60 + m
+  return past ? addDays(today, 1) : today
 }

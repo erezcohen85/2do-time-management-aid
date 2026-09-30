@@ -1,4 +1,4 @@
-import { addDays, formatDate, fromMin, parseDate, toMin, weekdayOf } from './time'
+import { addDays, formatDate, formatMinutes, fromMin, parseDate, toMin, weekdayOf } from './time'
 
 describe('time', () => {
   it('converts HH:mm and minutes', () => {
@@ -19,5 +19,15 @@ describe('time', () => {
   })
   it('round-trips dates', () => {
     expect(formatDate(parseDate('2026-01-05'))).toBe('2026-01-05')
+  })
+})
+
+describe('formatMinutes', () => {
+  it('formats minutes compactly', () => {
+    expect(formatMinutes(45)).toBe('45m')
+    expect(formatMinutes(120)).toBe('2h')
+    expect(formatMinutes(285)).toBe('4h45')
+    expect(formatMinutes(65)).toBe('1h05')
+    expect(formatMinutes(0)).toBe('0m')
   })
 })

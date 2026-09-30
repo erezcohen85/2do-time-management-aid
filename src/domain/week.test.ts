@@ -1,4 +1,4 @@
-import { flipWeek, isoWeekNumber, orderDays, visibleDates, weekDates, weekStartOf } from './week'
+import { defaultPlanDate, flipWeek, isoWeekNumber, orderDays, visibleDates, weekDates, weekStartOf } from './week'
 
 describe('week math', () => {
   it('finds the week start for any weekday start', () => {
@@ -36,5 +36,18 @@ describe('orderDays', () => {
     expect(orderDays([0, 5, 1, 1], 1)).toEqual([1, 5, 0])
     expect(orderDays([6, 0, 3], 0)).toEqual([0, 3, 6])
     expect(orderDays([0, 6], 6)).toEqual([6, 0])
+  })
+})
+
+describe('defaultPlanDate', () => {
+  const at = (h: number, m = 0) => new Date(2026, 9, 1, h, m)
+  it('evening mode lands on tomorrow after the ritual time, today before', () => {
+    expect(defaultPlanDate(at(21, 30), { mode: 'evening', time: '21:00' })).toBe('2026-10-02')
+    expect(defaultPlanDate(at(21, 0), { mode: 'evening', time: '21:00' })).toBe('2026-10-02')
+    expect(defaultPlanDate(at(20, 59), { mode: 'evening', time: '21:00' })).toBe('2026-10-01')
+  })
+  it('morning and anytime land on today', () => {
+    expect(defaultPlanDate(at(23), { mode: 'morning', time: '07:00' })).toBe('2026-10-01')
+    expect(defaultPlanDate(at(23), { mode: 'anytime', time: '07:00' })).toBe('2026-10-01')
   })
 })
