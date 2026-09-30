@@ -283,7 +283,7 @@ export const endSession = (db: Db, id: string, end: string): Db => ({
   sessions: db.sessions.map((s) => (s.id === id && !s.end ? { ...s, end } : s)),
 })
 
-export const setTimerState = (db: Db, timer: unknown): Db => ({ ...db, timer })
+export const setTimerState = (db: Db, timer: Db['timer']): Db => ({ ...db, timer })
 
 type DeepPartial<T> = { [K in keyof T]?: T[K] extends object ? (T[K] extends unknown[] ? T[K] : DeepPartial<T[K]>) : T[K] }
 

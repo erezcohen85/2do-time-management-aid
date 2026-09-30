@@ -39,7 +39,7 @@ export function Timeline({
             <li key="now" data-testid="now-line" className="flex items-center gap-2 text-xs text-now-line" aria-label={fromMin(r.startMin)}>
               <span className="font-mono tabular-nums">{fromMin(r.startMin)}</span>
               <span className="h-px flex-1 bg-now-line" />
-              <span className="font-semibold uppercase">now</span>
+              <span className="font-semibold uppercase">{t('today.now')}</span>
             </li>
           )
         }

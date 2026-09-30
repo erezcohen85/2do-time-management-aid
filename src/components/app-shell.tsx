@@ -11,9 +11,11 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/s
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { useI18n } from '@/i18n'
+import { useTimerTicker } from '@/timer/hooks'
 
 export function AppShell() {
   const { t } = useI18n()
+  useTimerTicker()
   return (
     <TooltipProvider>
       <SidebarProvider>

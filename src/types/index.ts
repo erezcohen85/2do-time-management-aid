@@ -1,3 +1,5 @@
+import type { TimerState } from '@/timer/engine'
+
 export type Grade = 'A' | 'B' | 'C' | 'D' | 'E'
 export const GRADES: Grade[] = ['A', 'B', 'C', 'D', 'E']
 
@@ -150,8 +152,8 @@ export interface Db {
   sessions: TimerSession[]
   reviews: Record<DateStr, WeeklyReview>
   settings: Settings
-  /** Persisted timer state machine (defined in Phase 5). */
-  timer: unknown
+  /** Persisted timer state machine (see `timer/engine.ts`). */
+  timer: TimerState | null
 }
 
 export const IVY_CAP = 6
