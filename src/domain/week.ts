@@ -29,3 +29,8 @@ export function isoWeekNumber(weekStartDate: DateStr): number {
   const yearStart = new Date(Date.UTC(t.getUTCFullYear(), 0, 1))
   return Math.ceil(((t.getTime() - yearStart.getTime()) / 86400000 + 1) / 7)
 }
+
+/** Weekday indexes (0=Sun) sorted in display order for a week starting on `weekStart`. */
+export function orderDays(days: number[], weekStart: number): number[] {
+  return [...new Set(days)].sort((a, b) => ((a - weekStart + 7) % 7) - ((b - weekStart + 7) % 7))
+}

@@ -1,4 +1,4 @@
-import { flipWeek, isoWeekNumber, visibleDates, weekDates, weekStartOf } from './week'
+import { flipWeek, isoWeekNumber, orderDays, visibleDates, weekDates, weekStartOf } from './week'
 
 describe('week math', () => {
   it('finds the week start for any weekday start', () => {
@@ -28,5 +28,13 @@ describe('week math', () => {
     expect(isoWeekNumber('2026-09-27')).toBe(40)
     expect(isoWeekNumber('2026-12-27')).toBe(53)
     expect(isoWeekNumber('2027-01-03')).toBe(1)
+  })
+})
+
+describe('orderDays', () => {
+  it('sorts weekday indexes from the week start and dedupes', () => {
+    expect(orderDays([0, 5, 1, 1], 1)).toEqual([1, 5, 0])
+    expect(orderDays([6, 0, 3], 0)).toEqual([0, 3, 6])
+    expect(orderDays([0, 6], 6)).toEqual([6, 0])
   })
 })

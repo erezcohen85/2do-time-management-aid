@@ -20,7 +20,12 @@ export default defineConfig([
     },
   },
   {
-    files: ['src/components/ui/**'],
-    rules: { 'react-refresh/only-export-components': 'off' },
+    // shadcn-generated files: keep stock code, relax rules they trip
+    files: ['src/components/ui/**', 'src/hooks/use-mobile.ts'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+      'react-hooks/purity': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+    },
   },
 ])
