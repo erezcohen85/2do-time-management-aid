@@ -23,6 +23,7 @@ beforeEach(() => {
   timerPrefs.reset()
   localStorage.clear()
   calendarEvents.clear()
+  actions.updateSettings({ review: { weekday: 6 } }) // keep Thursday free of the auto review block
   go('/today')
 })
 afterEach(() => vi.useRealTimers())

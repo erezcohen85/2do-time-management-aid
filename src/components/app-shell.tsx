@@ -4,6 +4,7 @@ import { GlobalKeys } from '@/components/global-keys'
 import { ItemDetail } from '@/components/item-detail'
 import { ProjectDetail } from '@/components/project-detail'
 import { QuickAdd } from '@/components/quick-add'
+import { RitualBanner } from '@/components/ritual-banner'
 import { SearchDialog } from '@/components/search-dialog'
 import { HeaderTimer } from '@/components/header-timer'
 import { Separator } from '@/components/ui/separator'
@@ -26,6 +27,7 @@ export function AppShell() {
             <Separator orientation="vertical" className="h-4" />
             <HeaderTimer />
           </header>
+          <RitualBanner />
           <main className="flex-1 p-6">
             <Outlet />
           </main>

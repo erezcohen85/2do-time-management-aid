@@ -6,12 +6,15 @@ import { toast } from 'sonner'
 import { CandidatesPane } from '@/components/candidates-pane'
 import { EstimateDialog } from '@/components/estimate-dialog'
 import { PlanTimeline } from '@/components/plan-timeline'
+import { ReviewPanel } from '@/components/review-panel'
+import { useReviewBlock } from '@/components/use-review-block'
 import { WeekHeader } from '@/components/week-header'
 import { actions, newId } from '@/data/actions'
 import { useDb } from '@/data/hooks'
 import { store } from '@/data/store'
 import { isPlannable } from '@/domain/items'
 import { canAddBlock, capStatus } from '@/domain/plan'
+import { isReviewDay } from '@/domain/review'
 import { defaultPlanDate } from '@/domain/week'
 import { useI18n } from '@/i18n'
 import type { DateStr } from '@/types'
@@ -32,6 +35,8 @@ export function PlanReviewScreen() {
       ? params.date
       : defaultPlanDate(new Date(), store.getState().settings.ritual)
   const go = (d: DateStr) => navigate(`/plan/${d}`)
+  useReviewBlock(date)
+  const reviewDay = useDb((d) => isReviewDay(date, d.settings))
   const [pending, setPending] = useState<{ itemId: string; index?: number } | null>(null)
   const [dragging, setDragging] = useState<string | null>(null)
   const sensors = useSensors(
@@ -107,6 +112,7 @@ export function PlanReviewScreen() {
           {dragging && <div className="rounded-md border bg-card px-3 py-1.5 text-sm shadow-md">{dragging}</div>}
         </DragOverlay>
       </DndContext>
+      {reviewDay && <ReviewPanel date={date} />}
       <EstimateDialog
         open={!!pending}
         onOpenChange={(o) => !o && setPending(null)}
