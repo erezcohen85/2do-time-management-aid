@@ -23,6 +23,8 @@ export interface I18n {
   /** `Intl.DateTimeFormat` for the active language. */
   fmt: (date: Date, opts: Intl.DateTimeFormatOptions) => string
   weekdayName: (weekday: number, style?: 'long' | 'short') => string
+  /** 285 -> "4h45" in English, "4 ש׳ 45 דק׳" in Hebrew. */
+  duration: (min: number) => string
 }
 
 export const I18nContext = createContext<I18n | null>(null)

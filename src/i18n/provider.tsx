@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, type ReactNode } from 'react'
 import { useDb } from '@/data/hooks'
+import { formatMinutes } from '@/domain/time'
 import { dirOf, I18nContext, translate, type I18n } from '.'
 
 export function I18nProvider({ children }: { children: ReactNode }) {
@@ -21,6 +22,13 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       fmt,
       // 2026-01-04 is a Sunday
       weekdayName: (w, style = 'long') => fmt(new Date(2026, 0, 4 + w, 12), { weekday: style }),
+      duration: (min) => {
+        if (lang === 'en') return formatMinutes(min)
+        const m = Math.max(0, Math.round(min))
+        const h = Math.floor(m / 60)
+        const r = m % 60
+        return [h ? `${h} ש׳` : '', r || !h ? `${r} דק׳` : ''].filter(Boolean).join(' ')
+      },
     }
   }, [lang, dir, t])
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>

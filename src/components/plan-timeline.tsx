@@ -16,7 +16,7 @@ import { actions } from '@/data/actions'
 import { useDb } from '@/data/hooks'
 import { capStatus } from '@/domain/plan'
 import { schedule, type ScheduledBlock } from '@/domain/schedule'
-import { formatMinutes, parseDate } from '@/domain/time'
+import { parseDate } from '@/domain/time'
 import { useI18n } from '@/i18n'
 import { gcal } from '@/integrations/gcal/client'
 import { useCalendarEvents } from '@/integrations/gcal/events-store'
@@ -25,14 +25,14 @@ import { cn } from '@/lib/utils'
 import type { DateStr } from '@/types'
 
 function EstimateEditor({ value, onSave, disabled }: { value: number; onSave: (n: number) => void; disabled: boolean }) {
-  const { t } = useI18n()
+  const { t, duration } = useI18n()
   const [v, setV] = useState(String(value))
   const [open, setOpen] = useState(false)
   return (
     <Popover open={open} onOpenChange={(o) => { setOpen(o); if (o) setV(String(value)) }}>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="sm" className="h-7 px-2 font-mono text-xs" disabled={disabled} aria-label={t('plan.estimate')}>
-          {formatMinutes(value)}
+          {duration(value)}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-44">
