@@ -38,6 +38,31 @@ describe('first-run tour: demos and language', () => {
     vi.useRealTimers()
   })
 
+  it('a cursor icon points at each pressed control (grade chip, add, tick, complete)', async () => {
+    const user = userEvent.setup()
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'], shouldAdvanceTime: true })
+    render(<App />)
+    await user.click(await screen.findByTestId('tour-next'))
+    // grade demo: cursor appears on the A chip in phase 1
+    expect(within(screen.getByTestId('tour-demo-2')).queryByTestId('tour-cursor')).not.toBeInTheDocument()
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1700)
+    })
+    expect(within(screen.getByTestId('tour-demo-2')).getByTestId('tour-cursor').parentElement).toHaveTextContent('A')
+    for (const step of [3, 4, 5]) {
+      await user.click(screen.getByTestId('tour-next'))
+      let found = false
+      for (let k = 0; k < 4 && !found; k++) {
+        found = within(screen.getByTestId(`tour-demo-${step}`)).queryAllByTestId('tour-cursor').length > 0
+        await act(async () => {
+          await vi.advanceTimersByTimeAsync(1500)
+        })
+      }
+      expect(found, `cursor in demo ${step}`).toBe(true)
+    }
+    vi.useRealTimers()
+  })
+
   it('lets the visitor pick the language inside the tour, and keeps their place', async () => {
     const user = userEvent.setup()
     render(<App />)
