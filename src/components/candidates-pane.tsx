@@ -9,7 +9,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Input } from '@/components/ui/input'
 import { useDb } from '@/data/hooks'
 import { candidates, type Candidate } from '@/domain/plan'
-import { formatMinutes, parseDate } from '@/domain/time'
+import { parseDate } from '@/domain/time'
 import { useI18n } from '@/i18n'
 import { cn } from '@/lib/utils'
 import { GRADES, type DateStr } from '@/types'
@@ -24,7 +24,7 @@ function CandidateRow({
   selected?: boolean
   onSelect?: (v: boolean) => void
 }) {
-  const { t, fmt } = useI18n()
+  const { t, fmt, duration } = useI18n()
   const projects = useDb((db) => db.projects)
   const items = useDb((db) => db.items)
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
@@ -64,7 +64,7 @@ function CandidateRow({
         <div className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
           {parent && <span>↳ {parent.title}</span>}
           {project && <span>{project.name}</span>}
-          {c.item.estimateMin && <span>{formatMinutes(c.item.estimateMin)}</span>}
+          {c.item.estimateMin && <span>{duration(c.item.estimateMin)}</span>}
           {c.item.due && <span>{fmt(parseDate(c.item.due), { day: 'numeric', month: 'short' })}</span>}
         </div>
       </div>

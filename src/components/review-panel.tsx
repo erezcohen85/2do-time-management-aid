@@ -11,7 +11,7 @@ import { actions } from '@/data/actions'
 import { useDb } from '@/data/hooks'
 import { smartProgress } from '@/domain/items'
 import { activeProjectsForReview, scorecard } from '@/domain/review'
-import { formatMinutes, parseDate } from '@/domain/time'
+import { parseDate } from '@/domain/time'
 import { weekStartOf } from '@/domain/week'
 import { useI18n } from '@/i18n'
 import { useDetail } from '@/lib/detail-state'
@@ -19,7 +19,7 @@ import { GRADES, type DateStr } from '@/types'
 
 /** Thursday (or configured day) review: scorecard, active projects walk, reflection. Saved per week. */
 export function ReviewPanel({ date }: { date: DateStr }) {
-  const { t, fmt } = useI18n()
+  const { t, fmt, duration } = useI18n()
   const { openItem } = useDetail()
   const settings = useDb((db) => db.settings)
   const plans = useDb((db) => db.plans)
@@ -67,11 +67,11 @@ export function ReviewPanel({ date }: { date: DateStr }) {
             </div>
             <div>
               <div className="text-xs text-muted-foreground">{t('review.taggedTime')}</div>
-              <div className="text-lg font-semibold" data-testid="review-tagged">{formatMinutes(sc.taggedMin)}</div>
+              <div className="text-lg font-semibold" data-testid="review-tagged">{duration(sc.taggedMin)}</div>
             </div>
             <div>
               <div className="text-xs text-muted-foreground">{t('review.untaggedTime')}</div>
-              <div className="text-lg font-semibold" data-testid="review-untagged">{formatMinutes(sc.untaggedMin)}</div>
+              <div className="text-lg font-semibold" data-testid="review-untagged">{duration(sc.untaggedMin)}</div>
             </div>
           </div>
           <Separator />

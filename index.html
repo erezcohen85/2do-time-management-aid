@@ -6,6 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="2DO: daily time management with ABCDE, Ivy Lee and a focus timer." />
     <title>2DO</title>
+    <script>
+      // Apply theme and direction before first paint so there is no light/LTR flash.
+      try {
+        var st = (JSON.parse(localStorage.getItem('2do.db.v2') || '{}').settings) || {}
+        var dark = st.theme === 'dark' || ((!st.theme || st.theme === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        if (dark) document.documentElement.classList.add('dark')
+        if (st.language === 'he') { document.documentElement.lang = 'he'; document.documentElement.dir = 'rtl' }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

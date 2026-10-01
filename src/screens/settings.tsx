@@ -57,13 +57,14 @@ function Pick<T extends string>({
 }
 
 function NumberField({
-  id, value, min = 1, max = 600, onChange, className = 'w-24',
-}: { id?: string; value: number; min?: number; max?: number; onChange: (n: number) => void; className?: string }) {
+  id, value, min = 1, max = 600, onChange, className = 'w-24', label,
+}: { id?: string; label?: string; value: number; min?: number; max?: number; onChange: (n: number) => void; className?: string }) {
   // Keep the raw text locally so the field can be cleared and retyped; only valid numbers are committed.
   const [draft, setDraft] = useState<string | null>(null)
   return (
     <Input
       id={id}
+      aria-label={label}
       type="number"
       inputMode="numeric"
       className={className}
@@ -245,12 +246,14 @@ export function SettingsScreen() {
                 onChange={(e) => up({ timer: { presets: s.timer.presets.map((x) => (x.id === p.id ? { ...x, name: e.target.value } : x)) } })}
               />
               <NumberField
+                label={t('settings.timer.presetWork')}
                 className="w-20"
                 value={p.workMin}
                 onChange={(workMin) => up({ timer: { presets: s.timer.presets.map((x) => (x.id === p.id ? { ...x, workMin } : x)) } })}
               />
               <span className="text-xs text-muted-foreground">{t('settings.timer.presetWork')}</span>
               <NumberField
+                label={t('settings.timer.presetBreak')}
                 className="w-20"
                 value={p.breakMin}
                 onChange={(breakMin) => up({ timer: { presets: s.timer.presets.map((x) => (x.id === p.id ? { ...x, breakMin } : x)) } })}

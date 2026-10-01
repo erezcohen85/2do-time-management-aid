@@ -13,7 +13,7 @@ import { useDb } from '@/data/hooks'
 import { drift } from '@/domain/drift'
 import { canTick, isOutOfOrder, score, topUnfinished } from '@/domain/plan'
 import { schedule, type ScheduledBlock } from '@/domain/schedule'
-import { formatMinutes, minutesOfDay, parseDate, todayStr } from '@/domain/time'
+import { minutesOfDay, parseDate, todayStr } from '@/domain/time'
 import { useI18n } from '@/i18n'
 import { useCalendarEvents } from '@/integrations/gcal/events-store'
 import { useGcalEvents } from '@/integrations/gcal/hooks'
@@ -23,7 +23,7 @@ import { timerPrefs } from '@/timer/prefs'
 import { cn } from '@/lib/utils'
 
 export function TodayScreen() {
-  const { t, fmt } = useI18n()
+  const { t, fmt, duration } = useI18n()
   const now = useNow(15000)
   const nowDate = new Date(now)
   const date = todayStr(nowDate)
@@ -124,7 +124,7 @@ export function TodayScreen() {
                     {b.kind === 'review' && <CalendarCheck className="size-4 shrink-0 text-muted-foreground" />}
                     <span className={cn('min-w-0 flex-1 truncate', b.done && 'line-through')}>{titleOf(b)}</span>
                     {isTop && <Badge>{t('today.current')}</Badge>}
-                    <span className="font-mono text-xs tabular-nums text-muted-foreground">{formatMinutes(b.estimateMin)}</span>
+                    <span className="font-mono text-xs tabular-nums text-muted-foreground">{duration(b.estimateMin)}</span>
                     {!b.done && (
                       <Button variant="ghost" size="icon" className="size-7" aria-label={t('today.start', { title: titleOf(b) })} onClick={() => startTimer(b.itemId)}>
                         <Play />

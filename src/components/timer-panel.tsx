@@ -72,7 +72,7 @@ export function TimerPanel() {
         <Tabs value={mode} onValueChange={(v) => !active && timerPrefs.set({ mode: v as TimerMode })}>
           <TabsList className="w-full">
             {(['pomodoro', 'countdown', 'stopwatch', 'preset'] as const).map((m) => (
-              <TabsTrigger key={m} value={m} disabled={active && m !== mode} data-testid={`timer-mode-${m}`}>
+              <TabsTrigger key={m} value={m} aria-controls={undefined} disabled={active && m !== mode} data-testid={`timer-mode-${m}`}>
                 {t(`timer.mode.${m}`)}
               </TabsTrigger>
             ))}
