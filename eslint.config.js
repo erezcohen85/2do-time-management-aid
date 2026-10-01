@@ -20,6 +20,11 @@ export default defineConfig([
     },
   },
   {
+    // Playwright fixtures use a callback named `use`, which is not a React hook
+    files: ['e2e/**'],
+    rules: { 'react-hooks/rules-of-hooks': 'off' },
+  },
+  {
     // shadcn-generated files: keep stock code, relax rules they trip
     files: ['src/components/ui/**', 'src/hooks/use-mobile.ts'],
     rules: {

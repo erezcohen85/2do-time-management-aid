@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/theme/theme-provider'
 
 export function resetStore() {
   localStorage.clear()
+  localStorage.setItem('2do.onboarded', '1')
   store.reload()
 }
 

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures'
 import { item, seed } from './helpers'
 
 test('capture with quick add, grade in one click, open detail', async ({ page }) => {

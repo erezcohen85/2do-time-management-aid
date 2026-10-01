@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures'
 
 test('capture → grade → plan tomorrow → tick on Today → Thursday review', async ({ page }) => {
   // Wednesday evening, after the 21:00 ritual time
