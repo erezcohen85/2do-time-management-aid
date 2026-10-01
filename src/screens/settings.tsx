@@ -12,6 +12,7 @@ import { actions, newId } from '@/data/actions'
 import { useDb } from '@/data/hooks'
 import { orderDays } from '@/domain/week'
 import { useI18n, type MessageKey } from '@/i18n'
+import { ui } from '@/lib/ui-store'
 import { gcal } from '@/integrations/gcal/client'
 import { useGcalStatus } from '@/integrations/gcal/status'
 import { ensureNotificationPermission } from '@/timer/alerts'
@@ -287,6 +288,14 @@ export function SettingsScreen() {
         <Field label={t('settings.timer.notify')} htmlFor="timer-notify">
           <Switch id="timer-notify" checked={s.timer.notify} onCheckedChange={(notify) => up({ timer: { notify } })} />
         </Field>
+      </Section>
+
+      <Section title={t('settings.section.help')}>
+        <div>
+          <Button variant="outline" onClick={() => ui.open('tour')} data-testid="show-tour">
+            {t('settings.tour')}
+          </Button>
+        </div>
       </Section>
 
       <Section title={t('settings.section.appearance')}>

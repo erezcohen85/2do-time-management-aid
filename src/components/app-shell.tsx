@@ -4,6 +4,7 @@ import { GcalBanner } from '@/components/gcal-banner'
 import { GlobalKeys } from '@/components/global-keys'
 import { ItemDetail } from '@/components/item-detail'
 import { ProjectDetail } from '@/components/project-detail'
+import { OnboardingTour } from '@/components/onboarding'
 import { QuickAdd } from '@/components/quick-add'
 import { RitualBanner } from '@/components/ritual-banner'
 import { SearchDialog } from '@/components/search-dialog'
@@ -40,6 +41,7 @@ export function AppShell() {
       <ItemDetail />
       <ProjectDetail />
       <QuickAdd />
+      <OnboardingTour />
       <SearchDialog />
       <GlobalKeys />
       <Toaster />

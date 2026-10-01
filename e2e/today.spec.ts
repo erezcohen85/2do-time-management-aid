@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures'
 import { item, seed } from './helpers'
 
 const pad = (n: number) => String(n).padStart(2, '0')

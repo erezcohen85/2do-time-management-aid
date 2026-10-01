@@ -22,6 +22,7 @@ beforeEach(() => {
   resetStore()
   timerPrefs.reset()
   localStorage.clear()
+  localStorage.setItem('2do.onboarded', '1')
   calendarEvents.clear()
   actions.updateSettings({ review: { weekday: 6 } }) // keep Thursday free of the auto review block
   go('/today')

@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react'
 
-type Key = 'quickAdd' | 'search'
-const state: Record<Key, boolean> = { quickAdd: false, search: false }
+type Key = 'quickAdd' | 'search' | 'tour'
+const state: Record<Key, boolean> = { quickAdd: false, search: false, tour: false }
 const listeners = new Set<() => void>()
 const emit = () => listeners.forEach((l) => l())
 

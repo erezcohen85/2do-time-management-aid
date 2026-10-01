@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from './fixtures'
 
 test('app loads the home screen and navigates', async ({ page }) => {
   await page.goto('/')

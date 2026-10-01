@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest'
-import { afterEach, beforeAll } from 'vitest'
+import { afterEach, beforeAll, beforeEach } from 'vitest'
 import { cleanup } from '@testing-library/react'
 
 beforeAll(() => {
@@ -23,6 +23,9 @@ beforeAll(() => {
   Element.prototype.hasPointerCapture ??= () => false
   Element.prototype.releasePointerCapture ??= () => {}
 })
+
+// the first-run tour is tested on its own; everything else starts "already onboarded"
+beforeEach(() => localStorage.setItem('2do.onboarded', '1'))
 
 afterEach(() => {
   cleanup()

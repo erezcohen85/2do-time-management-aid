@@ -18,6 +18,7 @@ beforeEach(() => {
   vi.setSystemTime(new Date('2026-10-01T09:00:00'))
   resetStore()
   localStorage.clear()
+  localStorage.setItem('2do.onboarded', '1')
   go(`/plan/${THU}`)
 })
 afterEach(() => vi.useRealTimers())

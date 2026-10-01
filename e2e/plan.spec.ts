@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures'
 import { item, seed } from './helpers'
 
 const D = '2026-10-02'
