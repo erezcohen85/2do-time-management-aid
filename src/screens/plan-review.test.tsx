@@ -225,6 +225,23 @@ describe('Plan & Review: building the day', () => {
   })
 })
 
+describe('Plan & Review: opening items', () => {
+  it('clicking a candidate or a planned block opens the item detail (subtasks too)', async () => {
+    const user = userEvent.setup()
+    mk('p', 'Parent')
+    actions.addItem(makeItem({ id: 's', title: 'Sub task', parentId: 'p' }))
+    actions.setGrade('s', 'A')
+    render(<App />)
+    await user.click(within(screen.getByTestId('candidates-pane')).getByRole('button', { name: 'Sub task' }))
+    expect(await screen.findByTestId('item-detail')).toBeInTheDocument()
+    expect(window.location.search).toBe('?item=s')
+    await user.keyboard('{Escape}')
+    actions.addItemBlock(D, 's', { id: 'bs' })
+    await user.click(await within(screen.getByTestId('plan-timeline')).findByRole('button', { name: 'Sub task' }))
+    expect(window.location.search).toBe('?item=s')
+  })
+})
+
 describe('Plan & Review: leftovers', () => {
   it('pre-picks leftovers from the last planned day; confirm adds the checked ones in old order', async () => {
     const user = userEvent.setup()

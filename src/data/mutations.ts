@@ -49,7 +49,9 @@ export function deleteArea(db: Db, id: string): Db {
     ...db,
     areas: db.areas.filter((a) => a.id !== id),
     projects: db.projects.filter((p) => p.areaId !== id),
-    items: db.items.map((i) => (i.projectId && gone.has(i.projectId) ? { ...i, projectId: null } : i)),
+    items: db.items.map((i) =>
+      (i.projectId && gone.has(i.projectId)) || i.areaId === id ? { ...i, projectId: null, areaId: null } : i,
+    ),
   }
 }
 
@@ -66,7 +68,8 @@ export function deleteProject(db: Db, id: string): Db {
   return {
     ...db,
     projects: db.projects.filter((p) => p.id !== id),
-    items: db.items.map((i) => (i.projectId === id ? { ...i, projectId: null } : i)),
+    // tasks stay in the project's area
+    items: db.items.map((i) => (i.projectId === id ? { ...i, projectId: null, areaId: db.projects.find((p) => p.id === id)?.areaId ?? null } : i)),
   }
 }
 
@@ -85,7 +88,15 @@ export function updateItem(db: Db, id: string, patch: ItemPatch): Db {
 export function moveItemToProject(db: Db, id: string, projectId: string | null): Db {
   return {
     ...db,
-    items: db.items.map((i) => (i.id === id || i.parentId === id ? { ...i, projectId } : i)),
+    items: db.items.map((i) => (i.id === id || i.parentId === id ? { ...i, projectId, areaId: null } : i)),
+  }
+}
+
+/** Put a task (and its subtasks) in an area without a project, or nowhere with `null`. */
+export function moveItemToArea(db: Db, id: string, areaId: string | null): Db {
+  return {
+    ...db,
+    items: db.items.map((i) => (i.id === id || i.parentId === id ? { ...i, projectId: null, areaId } : i)),
   }
 }
 

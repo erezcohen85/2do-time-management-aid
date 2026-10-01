@@ -107,6 +107,7 @@ export const he: Messages = {
   'tm.empty': 'עדיין ריק. הוסיפו את המשימה הראשונה עם ״הוספה״ או ⌘⇧A.',
   'tm.drag': 'גרירה לשינוי דירוג',
   'tm.noProject': 'ללא פרויקט',
+  'loc.areaOnly': '{area}: ללא פרויקט',
   'tm.loose': 'משימות ללא פרויקט',
   'tm.openTasks': '{n} פתוחות',
 

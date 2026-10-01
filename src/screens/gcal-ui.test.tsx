@@ -30,12 +30,14 @@ beforeEach(() => {
   actions.updateSettings({ review: { weekday: 6 } })
 })
 afterEach(() => {
+  vi.unstubAllEnvs()
   delete window.__2DO_GCAL_CLIENT__
 })
 
 describe('Settings: Google Calendar', () => {
   it('explains the missing client id when nothing is configured and disables Connect', async () => {
     delete window.__2DO_GCAL_CLIENT__
+    vi.stubEnv('VITE_GOOGLE_CLIENT_ID', '')
     go('/settings')
     render(<App />)
     expect(await screen.findByTestId('gcal-unconfigured')).toHaveTextContent('VITE_GOOGLE_CLIENT_ID')

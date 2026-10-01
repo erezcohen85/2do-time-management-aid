@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { actions } from '@/data/actions'
 import { useDb } from '@/data/hooks'
 import { isBlocked, rankLabel, smartCount } from '@/domain/items'
+import { locationLabel, locationOf } from '@/domain/location'
 import { parseDate } from '@/domain/time'
 import { useI18n } from '@/i18n'
 import { useDetail } from '@/lib/detail-state'
@@ -35,8 +36,7 @@ export function ItemRow({
   const projects = useDb((db) => db.projects)
   const areas = useDb((db) => db.areas)
 
-  const project = projects.find((p) => p.id === item.projectId)
-  const area = project && areas.find((a) => a.id === project.areaId)
+  const path = locationLabel(locationOf(item, projects, areas))
   const parent = item.parentId ? items.find((i) => i.id === item.parentId) : undefined
   const blocker = item.waitingOnId ? items.find((i) => i.id === item.waitingOnId) : undefined
   const blocked = isBlocked(item, items)
@@ -90,11 +90,7 @@ export function ItemRow({
             {parent.title}
           </span>
         )}
-        {showPath && project && (
-          <span className="text-xs text-muted-foreground">
-            {area?.name} / {project.name}
-          </span>
-        )}
+        {showPath && path && <span className="text-xs text-muted-foreground">{path}</span>}
         {smartN > 0 && <Badge variant="secondary">{t('row.smart', { n: smartN })}</Badge>}
         {item.carryOver > 0 && (
           <Badge variant="outline" title={t('row.carry', { n: item.carryOver })} className="gap-1">
