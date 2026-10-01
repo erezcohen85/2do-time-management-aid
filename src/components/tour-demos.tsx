@@ -1,7 +1,8 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { Check, Lock } from 'lucide-react'
+import { Check, MousePointer2, Plus } from 'lucide-react'
 import { GradeBadge, GradeDot } from '@/components/grade-chips'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { useI18n } from '@/i18n'
 import { pickLine } from '@/i18n/microcopy'
@@ -19,6 +20,16 @@ function useLoop(count: number, ms = 1500): number {
     return () => window.clearInterval(id)
   }, [count, ms])
   return phase
+}
+
+/** A small mouse cursor with a click ripple. Put it inside a `relative` element: it points at that element's corner. */
+function Pointer() {
+  return (
+    <span data-testid="tour-cursor" aria-hidden className="pointer-events-none absolute -bottom-3 -end-2 z-10 size-4 animate-in fade-in zoom-in duration-300">
+      <span className="absolute start-0 top-0 size-3 animate-ping rounded-full bg-primary/40" />
+      <MousePointer2 className="relative size-4 fill-foreground text-background drop-shadow" />
+    </span>
+  )
 }
 
 const Row = ({ children, className }: { children: ReactNode; className?: string }) => (
@@ -64,11 +75,12 @@ function Grade() {
           <Row key="inbox">
             <span className="size-4 rounded-[4px] border" />
             <span className="flex-1 truncate">{title}</span>
-            <span className="flex overflow-hidden rounded-md border">
+            <span className="flex rounded-md border">
               {GRADES.map((g) => (
-                <span key={g} className={cn('flex items-center gap-1 border-s px-2 py-0.5 font-mono text-xs first:border-s-0 transition-colors', p === 1 && g === 'A' && 'bg-accent')}>
+                <span key={g} className={cn('relative flex items-center gap-1 border-s px-2 py-0.5 font-mono text-xs first:border-s-0 transition-colors', p === 1 && g === 'A' && 'bg-accent')}>
                   <GradeDot grade={g} />
                   {g}
+                  {p === 1 && g === 'A' && <Pointer />}
                 </span>
               ))}
             </span>
@@ -107,7 +119,11 @@ function Plan() {
           {[a, b, c].map((x, i) => (
             <Row key={x} className={cn('transition-opacity duration-500', i < p && i < 2 && 'opacity-30')}>
               <GradeDot grade={i === 0 ? 'A' : i === 1 ? 'A' : 'C'} />
-              <span className="truncate text-xs">{x}</span>
+              <span className="min-w-0 flex-1 truncate text-xs">{x}</span>
+              <span className="relative flex size-5 shrink-0 items-center justify-center rounded-md">
+                <Plus className="size-3.5" />
+                {p === i && i < 2 && <Pointer />}
+              </span>
             </Row>
           ))}
         </div>
@@ -159,8 +175,9 @@ function Today() {
                 </div>
               )}
               <Row className={cn(i === current && 'border-primary ring-1 ring-primary', i < current && 'bg-block-done text-muted-foreground')}>
-                <span className={cn('flex size-4 items-center justify-center rounded-[4px] border', i < current && 'bg-primary text-primary-foreground')}>
+                <span className={cn('relative flex size-4 items-center justify-center rounded-[4px] border', i < current && 'bg-primary text-primary-foreground')}>
                   {i < current && <Check className="size-3" />}
+                  {i === current && p < 3 && <Pointer />}
                 </span>
                 <span className={cn('flex-1 truncate text-xs', i < current && 'line-through')}>{x}</span>
                 {i === current && <Badge className="text-[10px]">{t('today.current')}</Badge>}
@@ -204,9 +221,15 @@ function Review() {
           <div className="h-2 rounded bg-border" style={{ width: `${40 + p * 15}%`, transition: 'width 500ms' }} />
           <div className="h-2 rounded bg-border" style={{ width: `${20 + p * 12}%`, transition: 'width 500ms' }} />
         </div>
-        {p === 3 && (
+        {p < 3 ? (
+          <span className="relative w-fit">
+            <Button size="sm" className="h-7 text-xs" tabIndex={-1}>
+              <Check /> {t('review.complete')}
+            </Button>
+            {p === 2 && <Pointer />}
+          </span>
+        ) : (
           <span className="flex items-center gap-1 text-xs text-muted-foreground animate-in fade-in">
-            <Lock className="hidden" />
             <Check className="size-3.5" /> {t('review.completed')}
           </span>
         )}
