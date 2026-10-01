@@ -43,7 +43,7 @@ export function WeekHeader({ date, onNavigate }: { date: DateStr; onNavigate: (d
             const s = score(plans[d])
             const dt = parseDate(d)
             return (
-              <TabsTrigger key={d} value={d} data-testid={`day-tab-${d}`} title={d === today ? t('plan.today') : undefined} className={cn('flex-col gap-0.5 px-3 py-1.5', d === today && 'font-bold')}>
+              <TabsTrigger key={d} value={d} aria-controls={undefined} data-testid={`day-tab-${d}`} title={d === today ? t('plan.today') : undefined} className={cn('flex-col gap-0.5 px-3 py-1.5', d === today && 'font-bold')}>
                 <span className="flex items-center gap-1 text-xs">
                   {d === today && <span aria-hidden className="size-1.5 rounded-full bg-primary" />}
                   {fmt(dt, { weekday: 'short' })}

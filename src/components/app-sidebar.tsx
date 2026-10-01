@@ -48,8 +48,9 @@ export function AppSidebar() {
                     </NavLink>
                   </SidebarMenuButton>
                   {id === 'plan' && planDue && (
-                    <SidebarMenuBadge data-testid="plan-dot" aria-label={t('ritual.dot')}>
-                      <span className="size-2 rounded-full bg-destructive" />
+                    <SidebarMenuBadge data-testid="plan-dot">
+                      <span className="size-2 rounded-full bg-destructive" aria-hidden />
+                      <span className="sr-only">{t('ritual.dot')}</span>
                     </SidebarMenuBadge>
                   )}
                   {id === 'today' && today.total > 0 && (
