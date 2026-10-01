@@ -37,3 +37,6 @@ CLAUDE.md
 
 # v1 standalone build (local only)
 2do.html
+
+# Netlify local link
+.netlify/
