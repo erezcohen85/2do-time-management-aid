@@ -29,7 +29,8 @@ React 19, TypeScript, Vite, Tailwind CSS v4, shadcn/ui (new-york, neutral), Reac
 - **Timer as a state machine** derived from timestamps, so reloads and background tabs stay correct.
 - **Google client behind an interface** with a real REST client, an in-memory mock, and a tested sync diff (create, update, delete).
 - **Tests:** ~290 unit and component tests (Vitest, Testing Library) and 22 Playwright end-to-end tests, including a full capture → plan → tick → review journey, Google endpoints stubbed, and an axe accessibility scan in both languages and themes.
-- **Built agent-first.** The whole v2 was planned and built phase by phase with Claude Code from a written spec; the per-phase plans are in [`docs/plans`](docs/plans) and the working rules in [`CLAUDE.md`](CLAUDE.md).
+- **Planned in the open.** The whole v2 was built phase by phase from a written spec, one branch per phase merged with `--no-ff`; the per-phase plans are in [`docs/plans`](docs/plans) and the branch history shows the order of work.
+- **First-run tour.** A new visitor gets a five-step walkthrough and can load sample data to explore (replay it from Settings).
 
 ## Run it
 
@@ -43,7 +44,7 @@ npx playwright install chromium   # first time only
 npm run test:e2e   # Playwright (own dev server on :5199)
 ```
 
-Data lives in your browser (`localStorage`, key `2do.db.v2`). Start empty and add areas, projects and tasks.
+Data lives in your browser (`localStorage`, key `2do.db.v2`). On first launch a short tour offers sample data so you can click around right away.
 
 ## Google Calendar setup (optional)
 
@@ -70,3 +71,7 @@ docs/plans        phase-by-phase build plans
 ```
 
 v1 (a simpler task store) is preserved at the `v1` tag.
+
+## License
+
+[MIT](LICENSE) © Erez Cohen
