@@ -8,9 +8,11 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Input } from '@/components/ui/input'
 import { useDb } from '@/data/hooks'
+import { locationLabel, locationOf } from '@/domain/location'
 import { candidates, type Candidate } from '@/domain/plan'
 import { parseDate } from '@/domain/time'
 import { useI18n } from '@/i18n'
+import { useDetail } from '@/lib/detail-state'
 import { cn } from '@/lib/utils'
 import { GRADES, type DateStr } from '@/types'
 
@@ -32,7 +34,9 @@ function CandidateRow({
     data: { itemId: c.item.id },
     disabled: c.blocked || locked,
   })
-  const project = projects.find((p) => p.id === c.item.projectId)
+  const areas = useDb((db) => db.areas)
+  const path = locationLabel(locationOf(c.item, projects, areas))
+  const { openItem } = useDetail()
   const parent = c.item.parentId ? items.find((i) => i.id === c.item.parentId) : undefined
   const blocker = c.item.waitingOnId ? items.find((i) => i.id === c.item.waitingOnId) : undefined
 
@@ -60,10 +64,12 @@ function CandidateRow({
       )}
       {c.item.grade && <GradeDot grade={c.item.grade} />}
       <div className="min-w-0 flex-1">
-        <div className="truncate">{c.item.title}</div>
+        <button type="button" className="block max-w-full truncate text-start hover:underline" onClick={() => openItem(c.item.id)}>
+          {c.item.title}
+        </button>
         <div className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
           {parent && <span>↳ {parent.title}</span>}
-          {project && <span>{project.name}</span>}
+          {path && <span>{path}</span>}
           {c.item.estimateMin && <span>{duration(c.item.estimateMin)}</span>}
           {c.item.due && <span>{fmt(parseDate(c.item.due), { day: 'numeric', month: 'short' })}</span>}
         </div>

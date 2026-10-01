@@ -119,6 +119,52 @@ describe('Task Manager: By Project', () => {
   })
 })
 
+describe('Tasks in an area without a project', () => {
+  it('can be added inline under the area and shows area path in the grade view', async () => {
+    const user = userEvent.setup()
+    seed()
+    localStorage.setItem('2do.tm.view', 'project')
+    render(<App />)
+    const area = screen.getByTestId('area-block')
+    await user.type(within(within(area).getByTestId('area-tasks')).getByPlaceholderText('Add a task'), 'Water plants{Enter}')
+    const t = items().find((i) => i.title === 'Water plants')!
+    expect(t).toMatchObject({ projectId: null, areaId: 'a1' })
+    expect(within(within(area).getByTestId('area-tasks')).getByText('Water plants')).toBeInTheDocument()
+    expect(within(screen.getByTestId('loose-tasks')).queryByText('Water plants')).not.toBeInTheDocument()
+    expect(within(screen.getByTestId('ungraded-inbox')).getByText('Water plants').closest('[data-testid=item-row]')).toHaveTextContent('Home')
+  })
+
+  it('quick add and the detail panel can pick an area without a project', async () => {
+    const user = userEvent.setup()
+    seed()
+    const first = render(<App />)
+    await user.keyboard('{Meta>}{Shift>}a{/Shift}{/Meta}')
+    await user.type(await screen.findByPlaceholderText('What needs doing?'), 'Pay water bill')
+    await user.click(screen.getByRole('combobox', { name: 'Project' }))
+    await user.click(await screen.findByRole('option', { name: 'Home: no project' }))
+    await user.click(screen.getByRole('button', { name: 'Add task' }))
+    expect(items().find((i) => i.title === 'Pay water bill')).toMatchObject({ projectId: null, areaId: 'a1' })
+
+    first.unmount()
+    go('/tasks?item=i3')
+    render(<App />)
+    const d = within(await screen.findByTestId('item-detail'))
+    await user.click(d.getByRole('combobox', { name: 'Project' }))
+    await user.click(await screen.findByRole('option', { name: 'Home: no project' }))
+    expect(items().find((i) => i.id === 'i3')).toMatchObject({ projectId: null, areaId: 'a1' })
+  })
+
+  it('deleting the area clears the placement; deleting a project keeps tasks in its area', () => {
+    seed()
+    actions.updateItem('i1', {})
+    store.update((db) => ({ ...db, items: db.items.map((i) => (i.id === 'i3' ? { ...i, areaId: 'a1' } : i)) }))
+    actions.deleteProject('p1')
+    expect(items().find((i) => i.id === 'i1')).toMatchObject({ projectId: null, areaId: 'a1' })
+    actions.deleteArea('a1')
+    expect(items().every((i) => !i.areaId && !i.projectId)).toBe(true)
+  })
+})
+
 describe('Item detail panel', () => {
   async function open(id: string) {
     go(`/tasks?item=${id}`)

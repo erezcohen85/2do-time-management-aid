@@ -49,6 +49,8 @@ export interface ChecklistEntry {
 export interface Item {
   id: string
   projectId: string | null
+  /** Area for a task that has no project (only meaningful when `projectId` is null). */
+  areaId?: string | null
   parentId: string | null
   title: string
   notes?: string

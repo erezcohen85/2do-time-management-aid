@@ -21,6 +21,7 @@ import { useI18n } from '@/i18n'
 import { gcal } from '@/integrations/gcal/client'
 import { useCalendarEvents } from '@/integrations/gcal/events-store'
 import { useGcalStatus } from '@/integrations/gcal/status'
+import { useDetail } from '@/lib/detail-state'
 import { cn } from '@/lib/utils'
 import type { DateStr } from '@/types'
 
@@ -102,6 +103,7 @@ function PinEditor({ pinned, fallback, onPin, disabled }: { pinned?: string; fal
 
 function BlockRow({ sb, date, locked, index }: { sb: ScheduledBlock; date: DateStr; locked: boolean; index: number }) {
   const { t } = useI18n()
+  const { openItem } = useDetail()
   const item = useDb((db) => db.items.find((i) => i.id === sb.block.itemId))
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: `block-${sb.block.id}`,
@@ -131,7 +133,13 @@ function BlockRow({ sb, date, locked, index }: { sb: ScheduledBlock; date: DateS
         {index + 1}
       </span>
       {b.kind === 'review' && <CalendarCheck className="size-4 shrink-0 text-muted-foreground" />}
-      <span className={cn('min-w-0 flex-1 truncate', b.done && 'line-through')}>{title}</span>
+      {b.kind === 'item' && item ? (
+        <button type="button" className={cn('min-w-0 flex-1 truncate text-start hover:underline', b.done && 'line-through')} onClick={() => openItem(item.id)}>
+          {title}
+        </button>
+      ) : (
+        <span className={cn('min-w-0 flex-1 truncate', b.done && 'line-through')}>{title}</span>
+      )}
       {sb.conflict && (
         <Badge variant="destructive" title={t('plan.conflict')}>
           !

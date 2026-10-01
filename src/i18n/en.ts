@@ -105,6 +105,7 @@ export const en = {
   'tm.empty': 'Nothing here yet. Add your first task with Add or ⌘⇧A.',
   'tm.drag': 'Drag to rank',
   'tm.noProject': 'No project',
+  'loc.areaOnly': '{area}: no project',
   'tm.loose': 'Loose tasks',
   'tm.openTasks': '{n} open',
 

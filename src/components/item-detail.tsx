@@ -5,12 +5,13 @@ import { DraftInput, DraftNumber, DraftTextarea } from '@/components/draft-field
 import { DuePicker } from '@/components/due-picker'
 import { GradePicker } from '@/components/grade-chips'
 import { LinkList } from '@/components/link-list'
+import { LocationSelect } from '@/components/location-select'
 import { SmartFields } from '@/components/smart-fields'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { actions, makeItem, newId } from '@/data/actions'
@@ -28,34 +29,6 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <h3 className="text-sm font-medium">{title}</h3>
       {children}
     </section>
-  )
-}
-
-function ProjectSelect({ value, onChange, id }: { value: string | null; onChange: (id: string | null) => void; id?: string }) {
-  const { t } = useI18n()
-  const areas = useDb((db) => db.areas)
-  const projects = useDb((db) => db.projects)
-  return (
-    <Select value={value ?? NONE} onValueChange={(v) => onChange(v === NONE ? null : v)}>
-      <SelectTrigger id={id} className="w-full">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value={NONE}>{t('tm.noProject')}</SelectItem>
-        {areas.map((a) => (
-          <SelectGroup key={a.id}>
-            <SelectLabel>{a.name}</SelectLabel>
-            {projects
-              .filter((p) => p.areaId === a.id && (!p.archived || p.id === value))
-              .map((p) => (
-                <SelectItem key={p.id} value={p.id}>
-                  {p.name}
-                </SelectItem>
-              ))}
-          </SelectGroup>
-        ))}
-      </SelectContent>
-    </Select>
   )
 }
 
@@ -94,7 +67,7 @@ function Subtasks({ task }: { task: Item }) {
         onSubmit={(e) => {
           e.preventDefault()
           if (!v.trim()) return
-          actions.addItem(makeItem({ id: newId(), title: v.trim(), parentId: task.id, projectId: task.projectId }))
+          actions.addItem(makeItem({ id: newId(), title: v.trim(), parentId: task.id, projectId: task.projectId, areaId: task.areaId }))
           setV('')
         }}
       >
@@ -218,7 +191,11 @@ function ItemBody({ item }: { item: Item }) {
       {!parent && (
         <div className="grid gap-1.5">
           <Label htmlFor="d-project">{t('d.project')}</Label>
-          <ProjectSelect id="d-project" value={item.projectId} onChange={(pid) => actions.moveItemToProject(item.id, pid)} />
+          <LocationSelect
+            id="d-project"
+            value={{ projectId: item.projectId, areaId: item.areaId ?? null }}
+            onChange={(p) => (p.projectId ? actions.moveItemToProject(item.id, p.projectId) : actions.moveItemToArea(item.id, p.areaId))}
+          />
         </div>
       )}
       <Separator />

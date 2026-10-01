@@ -111,6 +111,7 @@ function AreaBlock({ area, projects, items }: { area: Area; projects: Project[];
   const [renaming, setRenaming] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [adding, setAdding] = useState(false)
+  const areaTasks = items.filter((i) => i.projectId === null && i.areaId === area.id && i.parentId === null && !i.done)
   return (
     <section className="grid gap-3" data-testid="area-block">
       <div className="flex items-center gap-2 border-b pb-1">
@@ -130,6 +131,13 @@ function AreaBlock({ area, projects, items }: { area: Area; projects: Project[];
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+      </div>
+      <div className="grid gap-2 ps-4" data-testid="area-tasks">
+        <TaskTree tasks={areaTasks} all={items} />
+        <InlineAdd
+          placeholder={t('project.addTask')}
+          onAdd={(title) => actions.addItem(makeItem({ id: newId(), title, areaId: area.id }))}
+        />
       </div>
       {projects.map((p) => (
         <ProjectBlock key={p.id} project={p} items={items} />
@@ -178,7 +186,7 @@ export function ByProject() {
   const projects = useDb((db) => db.projects)
   const items = useDb((db) => db.items)
   const [addingArea, setAddingArea] = useState(false)
-  const loose = items.filter((i) => i.projectId === null && i.parentId === null && !i.done)
+  const loose = items.filter((i) => i.projectId === null && !i.areaId && i.parentId === null && !i.done)
 
   return (
     <div className="grid gap-6">

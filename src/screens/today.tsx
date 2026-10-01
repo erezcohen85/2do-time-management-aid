@@ -20,10 +20,12 @@ import { useGcalEvents } from '@/integrations/gcal/hooks'
 import { ensureNotificationPermission } from '@/timer/alerts'
 import { timerController, useNow } from '@/timer/hooks'
 import { timerPrefs } from '@/timer/prefs'
+import { useDetail } from '@/lib/detail-state'
 import { cn } from '@/lib/utils'
 
 export function TodayScreen() {
   const { t, fmt, duration } = useI18n()
+  const { openItem } = useDetail()
   const now = useNow(15000)
   const nowDate = new Date(now)
   const date = todayStr(nowDate)
@@ -122,7 +124,13 @@ export function TodayScreen() {
                       {[...(plan?.blocks ?? [])].sort((x, y) => x.rank - y.rank).findIndex((x) => x.id === b.id) + 1}
                     </span>
                     {b.kind === 'review' && <CalendarCheck className="size-4 shrink-0 text-muted-foreground" />}
-                    <span className={cn('min-w-0 flex-1 truncate', b.done && 'line-through')}>{titleOf(b)}</span>
+                    {b.itemId ? (
+                      <button type="button" className={cn('min-w-0 flex-1 truncate text-start hover:underline', b.done && 'line-through')} onClick={() => openItem(b.itemId!)}>
+                        {titleOf(b)}
+                      </button>
+                    ) : (
+                      <span className={cn('min-w-0 flex-1 truncate', b.done && 'line-through')}>{titleOf(b)}</span>
+                    )}
                     {isTop && <Badge>{t('today.current')}</Badge>}
                     <span className="font-mono text-xs tabular-nums text-muted-foreground">{duration(b.estimateMin)}</span>
                     {!b.done && (

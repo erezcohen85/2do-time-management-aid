@@ -1,5 +1,6 @@
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
 import { useDb } from '@/data/hooks'
+import { locationLabel, locationOf } from '@/domain/location'
 import { useI18n } from '@/i18n'
 import { useDetail } from '@/lib/detail-state'
 import { ui, useUi } from '@/lib/ui-store'
@@ -24,15 +25,15 @@ export function SearchDialog() {
         {items.length > 0 && (
           <CommandGroup heading={t('search.tasks')}>
             {items.map((i) => {
-              const p = projects.find((x) => x.id === i.projectId)
+              const label = locationLabel(locationOf(i, projects, areas))
               return (
                 <CommandItem
                   key={i.id}
-                  value={`${i.title} ${p?.name ?? ''} ${i.id}`}
+                  value={`${i.title} ${label} ${i.id}`}
                   onSelect={() => pick(() => openItem(i.id))}
                 >
                   <span className={i.done ? 'text-muted-foreground line-through' : ''}>{i.title}</span>
-                  {p && <span className="ms-auto text-xs text-muted-foreground">{p.name}</span>}
+                  {label && <span className="ms-auto text-xs text-muted-foreground">{label}</span>}
                 </CommandItem>
               )
             })}
