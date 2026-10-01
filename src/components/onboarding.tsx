@@ -1,7 +1,10 @@
 import { useState } from 'react'
-import { CalendarRange, ListTodo, Sparkles, Timer, ClipboardCheck } from 'lucide-react'
+import { CalendarRange, ClipboardCheck, Globe, ListTodo, Sparkles, Timer } from 'lucide-react'
+import { TourDemo } from '@/components/tour-demos'
 import { Button } from '@/components/ui/button'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { actions } from '@/data/actions'
 import { useDb } from '@/data/hooks'
 import { buildSample, loadSample } from '@/data/sample'
 import { store } from '@/data/store'
@@ -18,7 +21,7 @@ const STEPS: { icon: typeof ListTodo; title: MessageKey; body: MessageKey }[] = 
 ]
 
 function Tour({ canLoadSample, onClose }: { canLoadSample: boolean; onClose: () => void }) {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const [i, setI] = useState(0)
   const step = STEPS[i]
   const last = i === STEPS.length - 1
@@ -26,8 +29,23 @@ function Tour({ canLoadSample, onClose }: { canLoadSample: boolean; onClose: () 
 
   return (
     <>
+      <div className="flex items-center gap-2 pe-8" data-testid="tour-language">
+        <Globe className="size-4 text-muted-foreground" />
+        <ToggleGroup
+          type="single"
+          size="sm"
+          variant="outline"
+          value={lang}
+          aria-label={t('settings.language')}
+          onValueChange={(v) => v && actions.updateSettings({ language: v as 'en' | 'he' })}
+        >
+          <ToggleGroupItem value="en" lang="en">English</ToggleGroupItem>
+          <ToggleGroupItem value="he" lang="he">עברית</ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+      <TourDemo step={i} />
       <DialogHeader>
-        <div className="mb-2 flex size-10 items-center justify-center rounded-full bg-secondary">
+        <div className="mb-1 flex size-10 items-center justify-center rounded-full bg-secondary">
           <Icon className="size-5" />
         </div>
         <DialogTitle>{t(step.title)}</DialogTitle>

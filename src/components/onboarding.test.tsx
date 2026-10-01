@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from '@/App'
 import { actions, makeItem } from '@/data/actions'
@@ -11,6 +11,45 @@ beforeEach(() => {
   resetStore()
   localStorage.removeItem('2do.onboarded')
   go('/tasks')
+})
+
+describe('first-run tour: demos and language', () => {
+  it('shows an animated demo for every step', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    for (let step = 1; step <= 5; step++) {
+      expect(await screen.findByTestId(`tour-demo-${step}`)).toBeInTheDocument()
+      if (step < 5) await user.click(screen.getByTestId('tour-next'))
+    }
+  })
+
+  it('the demo animates: the grade demo moves the task from Ungraded into group A', async () => {
+    const user = userEvent.setup()
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'], shouldAdvanceTime: true })
+    render(<App />)
+    await user.click(await screen.findByTestId('tour-next'))
+    const demo = screen.getByTestId('tour-demo-2')
+    expect(demo).toHaveTextContent('Ungraded (1)')
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3300)
+    })
+    expect(screen.getByTestId('tour-demo-2')).toHaveTextContent('Ungraded (0)')
+    expect(screen.getByTestId('tour-demo-2')).toHaveTextContent('A1')
+    vi.useRealTimers()
+  })
+
+  it('lets the visitor pick the language inside the tour, and keeps their place', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(await screen.findByTestId('tour-next'))
+    await user.click(within(screen.getByTestId('tour-language')).getByRole('radio', { name: 'עברית' }))
+    expect(store.getState().settings.language).toBe('he')
+    expect(document.documentElement.dir).toBe('rtl')
+    expect(screen.getByTestId('tour')).toHaveTextContent('לתעד ולדרג')
+    expect(screen.getByTestId('tour-demo-2')).toHaveTextContent('ללא דרגה')
+    await user.click(within(screen.getByTestId('tour-language')).getByRole('radio', { name: 'English' }))
+    expect(screen.getByTestId('tour')).toHaveTextContent('Capture and grade')
+  })
 })
 
 describe('first-run tour', () => {
