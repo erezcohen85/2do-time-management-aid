@@ -2,6 +2,8 @@
 
 A personal planner that turns a to-do list into a daily routine. It is built on four ideas from a time-management course: **ABCDE** prioritization, the **Ivy Lee** six-item day, **Pomodoro-style focus timing**, and a **weekly review**. Everything runs in the browser, in English and Hebrew (full RTL), light and dark.
 
+**[Live demo](https://2do-time-management.netlify.app)** (opens a short tour with sample data; everything stays in your browser)
+
 ![Task Manager, grouped and ranked by grade](docs/screenshots/tasks-by-grade.png)
 
 ## What it does
