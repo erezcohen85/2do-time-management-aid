@@ -120,6 +120,7 @@ export const en = {
   'area.name': 'Area name',
   'area.delete.title': 'Delete this area?',
   'area.delete.body': 'Its projects are deleted. Their tasks are kept as loose tasks.',
+  'project.addTo': 'Add a project to {name}',
   'project.add': 'Add project',
   'project.name': 'Project name',
   'project.delete.title': 'Delete this project?',
