@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { Plus, RefreshCw, Trash2 } from 'lucide-react'
+import { Download, Plus, RefreshCw, Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,6 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { actions, newId } from '@/data/actions'
+import { store } from '@/data/store'
+import { buildCsv } from '@/domain/export'
+import { todayStr } from '@/domain/time'
+import { downloadText } from '@/lib/download'
 import { useDb } from '@/data/hooks'
 import { orderDays } from '@/domain/week'
 import { useI18n, type MessageKey } from '@/i18n'
@@ -291,6 +296,10 @@ export function SettingsScreen() {
         </Field>
       </Section>
 
+      <Section title={t('settings.section.data')}>
+        <ExportCsv />
+      </Section>
+
       <Section title={t('settings.section.sync')}>
         <SyncPlaceholder />
       </Section>
@@ -328,6 +337,28 @@ export function SettingsScreen() {
           />
         </Field>
       </Section>
+    </div>
+  )
+}
+
+function ExportCsv() {
+  const { t } = useI18n()
+  return (
+    <div className="grid gap-2">
+      <div>
+        <Button
+          variant="outline"
+          data-testid="export-csv"
+          onClick={() => {
+            const csv = buildCsv(store.getState())
+            downloadText(`2do-export-${todayStr()}.csv`, csv)
+            toast.success(t('export.done', { n: Math.max(0, csv.split('\r\n').length - 2) }))
+          }}
+        >
+          <Download /> {t('export.button')}
+        </Button>
+      </div>
+      <p className="text-xs text-muted-foreground">{t('export.hint')}</p>
     </div>
   )
 }

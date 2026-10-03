@@ -355,6 +355,10 @@ export const en = {
   'sync.soon.title': 'Coming soon',
   'sync.soon.body': 'Syncing across devices is still in production. For now your data stays in this browser. You can export or keep using it as usual.',
   'sync.soon.ok': 'Got it',
+  'settings.section.data': 'Your data',
+  'export.button': 'Export everything (CSV)',
+  'export.hint': 'One file with every area, project, task and subtask: grades and ranks, estimates, due dates, SMART fields, checklists, links, notes and the days each item was planned. Opens in Excel or Google Sheets.',
+  'export.done': 'Exported {n} rows.',
 }
 
 export type Messages = typeof en

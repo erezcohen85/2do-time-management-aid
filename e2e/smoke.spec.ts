@@ -17,3 +17,9 @@ test('language and theme settings apply and persist across reload', async ({ pag
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
   await expect(page.getByRole('heading', { name: 'הגדרות', exact: true })).toBeVisible()
 })
+
+test('exports all data as a CSV file', async ({ page }) => {
+  await page.goto('/settings')
+  const [download] = await Promise.all([page.waitForEvent('download'), page.getByTestId('export-csv').click()])
+  expect(download.suggestedFilename()).toMatch(/^2do-export-\d{4}-\d{2}-\d{2}\.csv$/)
+})
