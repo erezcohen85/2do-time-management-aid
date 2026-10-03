@@ -2,7 +2,7 @@ import { act, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { SettingsScreen } from './settings'
 import { store } from '@/data/store'
-import { actions } from '@/data/actions'
+import { actions, makeItem } from '@/data/actions'
 import { STORAGE_KEY } from '@/data/persistence'
 import { renderApp, resetStore } from '@/test/utils'
 
@@ -81,6 +81,23 @@ describe('SettingsScreen', () => {
     expect(await screen.findByTestId('sync-soon')).toHaveTextContent('still in production')
     await user.click(screen.getByRole('button', { name: 'Got it' }))
     expect(screen.queryByTestId('sync-soon')).not.toBeInTheDocument()
+  })
+
+  it('exports everything as a CSV download', async () => {
+    const user = userEvent.setup()
+    actions.addArea({ id: 'a', name: 'Home' })
+    actions.addItem(makeItem({ id: 't', title: 'Pay rent', areaId: 'a' }))
+    let blob: Blob | undefined
+    URL.createObjectURL = ((b: Blob) => ((blob = b), 'blob:x')) as unknown as typeof URL.createObjectURL
+    URL.revokeObjectURL = vi.fn()
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+    renderApp(<SettingsScreen />)
+    await user.click(screen.getByTestId('export-csv'))
+    expect(click).toHaveBeenCalled()
+    const text = await blob!.text()
+    expect(text).toContain('Pay rent')
+    expect(text).toContain('area,Home')
+    click.mockRestore()
   })
 
   it('renders in Hebrew', () => {
