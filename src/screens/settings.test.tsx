@@ -74,6 +74,15 @@ describe('SettingsScreen', () => {
     expect(settings().weekStart).toBe(1)
   })
 
+  it('has a "Sync across devices" placeholder that says it is still in production', async () => {
+    const user = userEvent.setup()
+    renderApp(<SettingsScreen />)
+    await user.click(screen.getByRole('button', { name: 'Sync across devices' }))
+    expect(await screen.findByTestId('sync-soon')).toHaveTextContent('still in production')
+    await user.click(screen.getByRole('button', { name: 'Got it' }))
+    expect(screen.queryByTestId('sync-soon')).not.toBeInTheDocument()
+  })
+
   it('renders in Hebrew', () => {
     actions.updateSettings({ language: 'he' })
     renderApp(<SettingsScreen />)

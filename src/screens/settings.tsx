@@ -1,8 +1,9 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, RefreshCw, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -290,6 +291,10 @@ export function SettingsScreen() {
         </Field>
       </Section>
 
+      <Section title={t('settings.section.sync')}>
+        <SyncPlaceholder />
+      </Section>
+
       <Section title={t('settings.section.help')}>
         <div>
           <Button variant="outline" onClick={() => ui.open('tour')} data-testid="show-tour">
@@ -324,6 +329,32 @@ export function SettingsScreen() {
         </Field>
       </Section>
     </div>
+  )
+}
+
+function SyncPlaceholder() {
+  const { t } = useI18n()
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <div className="flex flex-wrap items-center gap-3">
+        <Button variant="outline" onClick={() => setOpen(true)} data-testid="sync-button">
+          <RefreshCw /> {t('sync.button')}
+        </Button>
+        <span className="text-xs text-muted-foreground">{t('sync.hint')}</span>
+      </div>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent data-testid="sync-soon">
+          <DialogHeader>
+            <DialogTitle>{t('sync.soon.title')}</DialogTitle>
+            <DialogDescription>{t('sync.soon.body')}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setOpen(false)}>{t('sync.soon.ok')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 
