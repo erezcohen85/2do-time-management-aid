@@ -6,7 +6,8 @@ import { ByProject } from '@/components/by-project'
 import { UngradedInbox } from '@/components/ungraded-inbox'
 import { Button } from '@/components/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { actions } from '@/data/actions'
+import { NameDialog } from '@/components/name-dialog'
+import { actions, newId } from '@/data/actions'
 import { useDb } from '@/data/hooks'
 import { store } from '@/data/store'
 import { useI18n } from '@/i18n'
@@ -22,6 +23,7 @@ const collision: CollisionDetection = (args) => {
 export function TaskManagerScreen() {
   const { t } = useI18n()
   const [view, setView] = useState<View>(() => (localStorage.getItem('2do.tm.view') === 'project' ? 'project' : 'grade'))
+  const [addingArea, setAddingArea] = useState(false)
   const empty = useDb((db) => db.items.length === 0 && db.areas.length === 0)
 
   const sensors = useSensors(
@@ -47,7 +49,13 @@ export function TaskManagerScreen() {
   return (
     <div className="mx-auto grid max-w-4xl gap-6">
       <div className="flex flex-wrap items-center gap-3">
-        <h1 className="me-auto text-2xl font-semibold tracking-tight">{t('nav.tasks')}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t('nav.tasks')}</h1>
+        {view === 'project' && (
+          <Button variant="outline" size="sm" onClick={() => setAddingArea(true)} data-testid="add-area">
+            <Plus /> {t('area.add')}
+          </Button>
+        )}
+        <span className="me-auto" />
         <ToggleGroup
           type="single"
           variant="outline"
@@ -65,6 +73,16 @@ export function TaskManagerScreen() {
           <Plus /> {t('tm.add')}
         </Button>
       </div>
+      <NameDialog
+        open={addingArea}
+        onOpenChange={setAddingArea}
+        title={t('area.add')}
+        label={t('area.name')}
+        onSubmit={(name) => {
+          actions.addArea({ id: newId(), name })
+          setAddingArea(false)
+        }}
+      />
       {empty && <p className="text-sm text-muted-foreground">{t('tm.empty')}</p>}
       {view === 'grade' ? (
         <>

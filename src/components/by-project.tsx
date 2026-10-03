@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useDroppable } from '@dnd-kit/core'
-import { ChevronRight, MoreHorizontal, Plus } from 'lucide-react'
+import { ChevronRight, FolderPlus, MoreHorizontal, Plus } from 'lucide-react'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { DraggableRow } from '@/components/draggable-row'
 import { ItemRow } from '@/components/item-row'
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { actions, makeItem, newId } from '@/data/actions'
 import { useDb } from '@/data/hooks'
 import { useI18n } from '@/i18n'
@@ -47,7 +48,7 @@ function InlineAdd({ placeholder, onAdd, onClose }: { placeholder: string; onAdd
 
 /** Chevron toggle + title slot + "+" right after the title (end side in English, start side in Hebrew). */
 function NodeHeader({
-  id, dropId, name, collapsed, onToggle, onPlus, titleNode, children,
+  id, dropId, name, collapsed, onToggle, onPlus, onAddProject, titleNode, children,
 }: {
   id: string
   /** Dropping a dragged task here moves it into this area, project or the loose bucket. */
@@ -56,6 +57,8 @@ function NodeHeader({
   collapsed: boolean
   onToggle: () => void
   onPlus: () => void
+  /** Areas only: a second, quieter icon right after the task +. */
+  onAddProject?: () => void
   titleNode: React.ReactNode
   children?: React.ReactNode
 }) {
@@ -75,9 +78,31 @@ function NodeHeader({
         <ChevronRight className={`transition-transform rtl:-scale-x-100 ${collapsed ? '' : 'rotate-90 rtl:rotate-90'}`} />
       </Button>
       {titleNode}
-      <Button variant="ghost" size="icon" className="size-7" aria-label={t('tm.addTaskTo', { name })} onClick={onPlus} data-testid="node-add">
-        <Plus />
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="icon" className="size-7" aria-label={t('tm.addTaskTo', { name })} onClick={onPlus} data-testid="node-add">
+            <Plus />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>{t('tm.addTaskTo', { name })}</TooltipContent>
+      </Tooltip>
+      {onAddProject && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7 text-muted-foreground"
+              aria-label={t('project.addTo', { name })}
+              onClick={onAddProject}
+              data-testid="node-add-project"
+            >
+              <FolderPlus />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{t('project.addTo', { name })}</TooltipContent>
+        </Tooltip>
+      )}
       {children}
     </div>
   )
@@ -201,6 +226,7 @@ function AreaBlock({ area, projects, items }: { area: Area; projects: Project[];
               setCollapsed(false)
               setAddingTask(true)
             }}
+            onAddProject={() => setAddingProject(true)}
             titleNode={<h2 className="text-lg font-semibold">{area.name}</h2>}
           >
             <DropdownMenu>
@@ -210,7 +236,6 @@ function AreaBlock({ area, projects, items }: { area: Area; projects: Project[];
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onSelect={() => setAddingProject(true)}>{t('project.add')}</DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => setRenaming(true)}>{t('common.rename')}</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem variant="destructive" onSelect={() => setDeleting(true)}>
@@ -234,11 +259,6 @@ function AreaBlock({ area, projects, items }: { area: Area; projects: Project[];
           {projects.map((p) => (
             <ProjectBlock key={p.id} project={p} items={items} />
           ))}
-          <div>
-            <Button variant="ghost" size="sm" onClick={() => setAddingProject(true)}>
-              <Plus /> {t('project.add')}
-            </Button>
-          </div>
         </CollapsibleContent>
         <NameDialog
           open={addingProject}
@@ -312,11 +332,9 @@ function LooseTasks({ items }: { items: Item[] }) {
 }
 
 export function ByProject() {
-  const { t } = useI18n()
   const areas = useDb((db) => db.areas)
   const projects = useDb((db) => db.projects)
   const items = useDb((db) => db.items)
-  const [addingArea, setAddingArea] = useState(false)
 
   return (
     <div className="grid gap-6">
@@ -331,22 +349,7 @@ export function ByProject() {
             items={items}
           />
         ))}
-      <div>
-        <Button variant="outline" size="sm" onClick={() => setAddingArea(true)}>
-          <Plus /> {t('area.add')}
-        </Button>
-      </div>
       <LooseTasks items={items} />
-      <NameDialog
-        open={addingArea}
-        onOpenChange={setAddingArea}
-        title={t('area.add')}
-        label={t('area.name')}
-        onSubmit={(name) => {
-          actions.addArea({ id: newId(), name })
-          setAddingArea(false)
-        }}
-      />
     </div>
   )
 }

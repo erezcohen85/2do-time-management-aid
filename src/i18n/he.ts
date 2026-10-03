@@ -122,6 +122,7 @@ export const he: Messages = {
   'area.name': 'שם התחום',
   'area.delete.title': 'למחוק את התחום?',
   'area.delete.body': 'הפרויקטים שלו יימחקו. המשימות שלהם יישמרו כמשימות ללא פרויקט.',
+  'project.addTo': 'הוספת פרויקט אל {name}',
   'project.add': 'הוספת פרויקט',
   'project.name': 'שם הפרויקט',
   'project.delete.title': 'למחוק את הפרויקט?',

@@ -96,7 +96,7 @@ describe('Task Manager: By Project', () => {
     await user.click(screen.getByRole('button', { name: 'Add area' }))
     await user.type(await screen.findByPlaceholderText('Area name'), 'Home{Enter}')
     expect(store.getState().areas.map((a) => a.name)).toEqual(['Home'])
-    await user.click(screen.getByRole('button', { name: 'Add project' }))
+    await user.click(screen.getByRole('button', { name: 'Add a project to Home' }))
     await user.type(await screen.findByPlaceholderText('Project name'), 'Admin{Enter}')
     expect(store.getState().projects).toHaveLength(1)
     const block = screen.getByTestId('project-block')
@@ -167,6 +167,23 @@ describe('By Project: collapsing and the + next to titles', () => {
     await user.click(within(screen.getByTestId('project-block')).getByRole('button', { name: 'Add a task to Admin' }))
     expect(within(screen.getByTestId('project-block')).getByPlaceholderText('Add a task')).toHaveFocus()
     expect(within(screen.getByTestId('project-block')).getByRole('button', { name: 'Collapse Admin' })).toBeInTheDocument()
+  })
+
+  it('add area sits next to the page title; the project icon follows the task + in each area', async () => {
+    seed()
+    render(<App />)
+    const title = screen.getByRole('heading', { name: 'Task Manager' })
+    expect(title.nextElementSibling).toBe(screen.getByTestId('add-area'))
+    const area = screen.getByTestId('area-block')
+    const add = within(area).getAllByTestId('node-add')[0]
+    expect(add.nextElementSibling).toBe(within(area).getAllByTestId('node-add-project')[0])
+    expect(screen.queryByRole('button', { name: 'Add project' })).not.toBeInTheDocument()
+  })
+
+  it('add area is not shown in By Grade', async () => {
+    localStorage.setItem('2do.tm.view', 'grade')
+    render(<App />)
+    expect(screen.queryByTestId('add-area')).not.toBeInTheDocument()
   })
 
   it('the + sits right after the title (reading order), in English and Hebrew', async () => {
