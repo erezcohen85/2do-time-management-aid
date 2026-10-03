@@ -351,4 +351,10 @@ export const he: Messages = {
   'sample.item.flights': 'להזמין טיסות',
   'sample.item.plants': 'להשקות את העציצים',
   'sample.item.passport': 'לחדש דרכון',
+  'settings.section.sync': 'סנכרון',
+  'sync.button': 'סנכרון בין מכשירים',
+  'sync.hint': 'לשמור את המשימות והתכנון בכל המכשירים שלכם.',
+  'sync.soon.title': 'בקרוב',
+  'sync.soon.body': 'הסנכרון בין מכשירים עדיין בפיתוח. בינתיים הנתונים נשארים בדפדפן הזה, ואפשר להמשיך להשתמש באפליקציה כרגיל.',
+  'sync.soon.ok': 'הבנתי',
 }

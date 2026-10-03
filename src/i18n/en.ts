@@ -349,6 +349,12 @@ export const en = {
   'sample.item.flights': 'Book flights',
   'sample.item.plants': 'Water the plants',
   'sample.item.passport': 'Renew passport',
+  'settings.section.sync': 'Sync',
+  'sync.button': 'Sync across devices',
+  'sync.hint': 'Keep your tasks and plans on all your devices.',
+  'sync.soon.title': 'Coming soon',
+  'sync.soon.body': 'Syncing across devices is still in production. For now your data stays in this browser. You can export or keep using it as usual.',
+  'sync.soon.ok': 'Got it',
 }
 
 export type Messages = typeof en
