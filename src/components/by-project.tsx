@@ -75,7 +75,7 @@ function NodeHeader({
         onClick={onToggle}
         data-testid="node-toggle"
       >
-        <ChevronRight className={`transition-transform rtl:-scale-x-100 ${collapsed ? '' : 'rotate-90 rtl:rotate-90'}`} />
+        <ChevronRight className={`transition-transform rtl:-scale-x-100 ${collapsed ? '' : 'rotate-90 rtl:scale-x-100'}`} />
       </Button>
       {titleNode}
       <Tooltip>
