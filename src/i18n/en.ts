@@ -103,6 +103,7 @@ export const en = {
   'tm.done': 'Done',
   'tm.done.empty': 'Nothing done yet.',
   'tm.empty': 'Nothing here yet. Add your first task with Add or ⌘⇧A.',
+  'tm.dragAssign': 'Drag onto an area or project to move',
   'tm.drag': 'Drag to rank',
   'tm.noProject': 'No project',
   'loc.areaOnly': '{area}: no project',
@@ -359,6 +360,9 @@ export const en = {
   'export.button': 'Export everything (CSV)',
   'export.hint': 'One file with every area, project, task and subtask: grades and ranks, estimates, due dates, SMART fields, checklists, links, notes and the days each item was planned. Opens in Excel or Google Sheets.',
   'export.done': 'Exported {n} rows.',
+  'tm.collapse': 'Collapse {name}',
+  'tm.expand': 'Expand {name}',
+  'tm.addTaskTo': 'Add a task to {name}',
 }
 
 export type Messages = typeof en
