@@ -102,7 +102,7 @@ function Group({
   return (
     <Collapsible open={open} onOpenChange={onOpenChange} data-testid={`cand-group-${id}`}>
       <CollapsibleTrigger className="flex w-full items-center gap-2 py-1 text-start text-sm font-semibold">
-        <ChevronRight className="size-4 transition-transform rtl:-scale-x-100 [[data-state=open]>&]:rotate-90 rtl:[[data-state=open]>&]:rotate-90" />
+        <ChevronRight className="size-4 transition-transform rtl:-scale-x-100 [[data-state=open]>&]:rotate-90 rtl:[[data-state=open]>&]:scale-x-100" />
         {title}
         <span className="font-normal text-muted-foreground">({count})</span>
       </CollapsibleTrigger>

@@ -43,7 +43,7 @@ function GradeGroup({ grade, items, open, onOpenChange }: {
   return (
     <Collapsible open={open} onOpenChange={onOpenChange} data-testid={`grade-group-${grade}`}>
       <CollapsibleTrigger className="flex w-full items-center gap-2 py-1 text-start text-lg font-semibold">
-        <ChevronRight className="size-4 transition-transform rtl:-scale-x-100 [[data-state=open]>&]:rotate-90 rtl:[[data-state=open]>&]:rotate-90" />
+        <ChevronRight className="size-4 transition-transform rtl:-scale-x-100 [[data-state=open]>&]:rotate-90 rtl:[[data-state=open]>&]:scale-x-100" />
         <GradeDot grade={grade} className="size-2.5" />
         <span>{grade}</span>
         <span className="text-sm font-normal text-muted-foreground">
@@ -105,7 +105,7 @@ export function ByGrade() {
       </DndContext>
       <Collapsible open={open.done} onOpenChange={(o) => setOpen((s) => ({ ...s, done: o }))} data-testid="done-group">
         <CollapsibleTrigger className="flex w-full items-center gap-2 py-1 text-start text-lg font-semibold">
-          <ChevronRight className="size-4 transition-transform rtl:-scale-x-100 [[data-state=open]>&]:rotate-90 rtl:[[data-state=open]>&]:rotate-90" />
+          <ChevronRight className="size-4 transition-transform rtl:-scale-x-100 [[data-state=open]>&]:rotate-90 rtl:[[data-state=open]>&]:scale-x-100" />
           {t('tm.done')}
           <span className="text-sm font-normal text-muted-foreground">({done.length})</span>
         </CollapsibleTrigger>
