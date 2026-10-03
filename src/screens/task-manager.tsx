@@ -1,20 +1,43 @@
 import { useState } from 'react'
+import { closestCenter, DndContext, KeyboardSensor, PointerSensor, pointerWithin, useSensor, useSensors, type CollisionDetection, type DragEndEvent } from '@dnd-kit/core'
 import { Plus, Search } from 'lucide-react'
 import { ByGrade } from '@/components/by-grade'
 import { ByProject } from '@/components/by-project'
 import { UngradedInbox } from '@/components/ungraded-inbox'
 import { Button } from '@/components/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { actions } from '@/data/actions'
 import { useDb } from '@/data/hooks'
+import { store } from '@/data/store'
 import { useI18n } from '@/i18n'
 import { ui } from '@/lib/ui-store'
 
 type View = 'grade' | 'project'
 
+const collision: CollisionDetection = (args) => {
+  const within = pointerWithin(args)
+  return within.length ? within : closestCenter(args)
+}
+
 export function TaskManagerScreen() {
   const { t } = useI18n()
   const [view, setView] = useState<View>(() => (localStorage.getItem('2do.tm.view') === 'project' ? 'project' : 'grade'))
   const empty = useDb((db) => db.items.length === 0 && db.areas.length === 0)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor),
+  )
+
+  /** Drop a task on an area, a project or "Loose tasks" to (re)assign it. */
+  function onAssign(e: DragEndEvent) {
+    const id = e.active.data.current?.itemId as string | undefined
+    const over = e.over ? String(e.over.id) : ''
+    if (!id || !store.getState().items.some((i) => i.id === id)) return
+    if (over.startsWith('project:')) actions.moveItemToProject(id, over.slice(8))
+    else if (over.startsWith('area:')) actions.moveItemToArea(id, over.slice(5))
+    else if (over === 'loose') actions.moveItemToArea(id, null)
+  }
 
   const changeView = (v: View) => {
     setView(v)
@@ -43,8 +66,16 @@ export function TaskManagerScreen() {
         </Button>
       </div>
       {empty && <p className="text-sm text-muted-foreground">{t('tm.empty')}</p>}
-      <UngradedInbox />
-      {view === 'grade' ? <ByGrade /> : <ByProject />}
+      {view === 'grade' ? (
+        <>
+          <UngradedInbox />
+          <ByGrade />
+        </>
+      ) : (
+        <DndContext sensors={sensors} collisionDetection={collision} onDragEnd={onAssign}>
+          <ByProject />
+        </DndContext>
+      )}
     </div>
   )
 }

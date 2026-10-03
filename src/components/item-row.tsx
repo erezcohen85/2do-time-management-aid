@@ -22,13 +22,14 @@ export interface ItemRowProps {
   showPath?: boolean
   indent?: boolean
   dragHandle?: HTMLAttributes<HTMLButtonElement>
+  dragLabel?: string
   rowRef?: Ref<HTMLDivElement>
   style?: React.CSSProperties
   dragging?: boolean
 }
 
 export function ItemRow({
-  item, showRank, gradePicker, showPath = true, indent, dragHandle, rowRef, style, dragging,
+  item, showRank, gradePicker, showPath = true, indent, dragHandle, dragLabel, rowRef, style, dragging,
 }: ItemRowProps) {
   const { t, fmt } = useI18n()
   const { openItem } = useDetail()
@@ -59,7 +60,7 @@ export function ItemRow({
       {dragHandle && (
         <button
           type="button"
-          aria-label={t('tm.drag')}
+          aria-label={dragLabel ?? t('tm.drag')}
           className="cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
           {...dragHandle}
         >

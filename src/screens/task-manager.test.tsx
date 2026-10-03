@@ -100,6 +100,8 @@ describe('Task Manager: By Project', () => {
     await user.type(await screen.findByPlaceholderText('Project name'), 'Admin{Enter}')
     expect(store.getState().projects).toHaveLength(1)
     const block = screen.getByTestId('project-block')
+    expect(within(block).queryByPlaceholderText('Add a task')).not.toBeInTheDocument()
+    await user.click(within(block).getByRole('button', { name: 'Add a task to Admin' }))
     await user.type(within(block).getByPlaceholderText('Add a task'), 'Pay rent{Enter}')
     expect(items()[0]).toMatchObject({ title: 'Pay rent', projectId: store.getState().projects[0].id })
   })
@@ -119,6 +121,79 @@ describe('Task Manager: By Project', () => {
   })
 })
 
+describe('By Project: collapsing and the + next to titles', () => {
+  beforeEach(() => localStorage.setItem('2do.tm.view', 'project'))
+
+  it('areas and projects collapse and expand, and the choice is remembered', async () => {
+    const user = userEvent.setup()
+    seed()
+    const { unmount } = render(<App />)
+    const area = screen.getByTestId('area-block')
+    expect(within(area).getByText('Call accountant')).toBeInTheDocument()
+    await user.click(within(screen.getByTestId('project-block')).getByTestId('node-toggle'))
+    expect(within(area).queryByText('Call accountant')).not.toBeInTheDocument()
+    expect(within(screen.getByTestId('project-block')).getByRole('button', { name: 'Expand Admin' })).toHaveAttribute('aria-expanded', 'false')
+    await user.click(within(area).getAllByTestId('node-toggle')[0])
+    expect(screen.queryByTestId('project-block')).not.toBeInTheDocument()
+    unmount()
+    render(<App />) // remembered after a reload
+    expect(screen.queryByTestId('project-block')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Expand Home' }))
+    expect(screen.getByTestId('project-block')).toBeInTheDocument()
+    // the project inside stayed collapsed, as left
+    expect(within(screen.getByTestId('project-block')).queryByText('Call accountant')).not.toBeInTheDocument()
+  })
+
+  it('no empty field by default; + opens a focused field, Enter creates and keeps it open, Esc closes', async () => {
+    const user = userEvent.setup()
+    seed()
+    render(<App />)
+    expect(screen.queryByPlaceholderText('Add a task')).not.toBeInTheDocument()
+    const block = screen.getByTestId('project-block')
+    await user.click(within(block).getByRole('button', { name: 'Add a task to Admin' }))
+    const field = within(block).getByPlaceholderText('Add a task')
+    expect(field).toHaveFocus()
+    await user.keyboard('First{Enter}Second{Enter}')
+    expect(items().filter((i) => i.projectId === 'p1').map((i) => i.title)).toEqual(expect.arrayContaining(['First', 'Second']))
+    await user.keyboard('{Escape}')
+    expect(within(block).queryByPlaceholderText('Add a task')).not.toBeInTheDocument()
+  })
+
+  it('+ on a collapsed node expands it and shows the field', async () => {
+    const user = userEvent.setup()
+    seed()
+    render(<App />)
+    await user.click(within(screen.getByTestId('project-block')).getByTestId('node-toggle'))
+    await user.click(within(screen.getByTestId('project-block')).getByRole('button', { name: 'Add a task to Admin' }))
+    expect(within(screen.getByTestId('project-block')).getByPlaceholderText('Add a task')).toHaveFocus()
+    expect(within(screen.getByTestId('project-block')).getByRole('button', { name: 'Collapse Admin' })).toBeInTheDocument()
+  })
+
+  it('the + sits right after the title (reading order), in English and Hebrew', async () => {
+    seed()
+    const { unmount } = render(<App />)
+    const order = (el: HTMLElement) => [...el.querySelectorAll('h2, [data-testid=node-add]')].map((n) => n.tagName)
+    expect(order(screen.getByTestId('area-block').querySelector('[data-node=a1]')!.parentElement!)).toEqual(['H2', 'BUTTON'])
+    unmount()
+    actions.updateSettings({ language: 'he' })
+    render(<App />)
+    expect(document.documentElement.dir).toBe('rtl')
+    expect(screen.getByTestId('area-block').querySelector('h2')!.nextElementSibling).toHaveAttribute('data-testid', 'node-add')
+  })
+
+  it('loose tasks collapse and add the same way', async () => {
+    const user = userEvent.setup()
+    seed()
+    render(<App />)
+    const loose = screen.getByTestId('loose-tasks')
+    await user.click(within(loose).getByRole('button', { name: 'Add a task to Loose tasks' }))
+    await user.type(within(loose).getByPlaceholderText('Add a task'), 'Stray{Enter}')
+    expect(items().find((i) => i.title === 'Stray')).toMatchObject({ projectId: null })
+    await user.click(within(loose).getByRole('button', { name: 'Collapse Loose tasks' }))
+    expect(within(loose).queryByText('Stray')).not.toBeInTheDocument()
+  })
+})
+
 describe('Tasks in an area without a project', () => {
   it('can be added inline under the area and shows area path in the grade view', async () => {
     const user = userEvent.setup()
@@ -126,11 +201,14 @@ describe('Tasks in an area without a project', () => {
     localStorage.setItem('2do.tm.view', 'project')
     render(<App />)
     const area = screen.getByTestId('area-block')
+    await user.click(within(area).getByRole('button', { name: 'Add a task to Home' }))
     await user.type(within(within(area).getByTestId('area-tasks')).getByPlaceholderText('Add a task'), 'Water plants{Enter}')
     const t = items().find((i) => i.title === 'Water plants')!
     expect(t).toMatchObject({ projectId: null, areaId: 'a1' })
     expect(within(within(area).getByTestId('area-tasks')).getByText('Water plants')).toBeInTheDocument()
     expect(within(screen.getByTestId('loose-tasks')).queryByText('Water plants')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('ungraded-inbox')).not.toBeInTheDocument() // no inbox in By Project
+    await user.click(screen.getByRole('radio', { name: 'By Grade' }))
     expect(within(screen.getByTestId('ungraded-inbox')).getByText('Water plants').closest('[data-testid=item-row]')).toHaveTextContent('Home')
   })
 
